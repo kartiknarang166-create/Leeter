@@ -6,10 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import DottedUnderline from './DottedUnderline';
 
-const navLinks = [
-  { title: 'Home', href: '/' },
-  { title: 'Leaderboard', href: '/college' },
-];
+// navLinks moved inside component to access user state
 
 function isActive(pathname, href) {
   if (href === '/') return pathname === '/';
@@ -26,6 +23,11 @@ export default function Navbar() {
   const { theme, toggle } = useTheme();
 
   const handleLogout = () => { logout(); navigate('/'); };
+
+  const navLinks = [
+    { title: 'Home', href: '/' },
+    { title: 'Leaderboard', href: user?.college?.slug ? `/college/${user.college.slug}` : '/college' },
+  ];
 
   return (
     <nav
@@ -58,6 +60,8 @@ export default function Navbar() {
         {/* Right: pullcord theme toggle + auth */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
 
+          
+          {/* PullCord theme toggle */}
           <div className="desktop-only" style={{ position: 'absolute', top: 0, right: '1.5rem', zIndex: 50 }} title={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}>
             <PullCord
               onPull={toggle}
@@ -65,6 +69,26 @@ export default function Navbar() {
               ariaLabel={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
               config={{ gravity: 1250, damping: 0.94, iterations: 20, stretchMax: 26 }}
             />
+          </div>
+
+          {/* "pull the cord!" hint — fixed, aligned to the left of the bob */}
+          <div className="desktop-only" style={{
+            position: 'fixed', top: '158px', right: 'calc(12rem - 20px)', zIndex: 49,
+            display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
+            pointerEvents: 'none', userSelect: 'none', whiteSpace: 'nowrap',
+            opacity: 0,
+            animation: 'pullCordHintFade 0.7s ease 1.5s forwards',
+          }}>
+            <span style={{
+              fontFamily: "'Caveat', cursive",
+              fontSize: '1.15rem',
+              fontWeight: 600,
+              color: theme === 'dark' ? '#736E63' : '#81818B',
+              lineHeight: 1.0,
+              textAlign: 'right',
+            }}>
+              pull the<br />cord!
+            </span>
           </div>
 
           <div className="mobile-only">

@@ -9,7 +9,9 @@ export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [colleges, setColleges] = useState([]);
-  const [form, setForm] = useState({ username: '', email: '', password: '', college_id: '' });
+  const [form, setForm] = useState({ username: '', email: '', password: '', college_id: '', graduation_year: '' });
+  const [collegeSearch, setCollegeSearch] = useState('');
+  const [showCollegeDropdown, setShowCollegeDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -23,9 +25,29 @@ export default function Register() {
     if (!/^[a-zA-Z0-9_]+$/.test(form.username)) e.username = 'Letters, numbers, underscores only';
     if (!form.email?.includes('@')) e.email = 'Valid email required';
     if (!form.password || form.password.length < 6) e.password = 'Min 6 characters';
-    if (!form.college_id) e.college_id = 'Select your college';
+    if (!form.college_id) e.college_id = 'Please search and select a valid college from the list';
+    if (!form.graduation_year) e.graduation_year = 'Select your year';
     return e;
   };
+
+  const searchWords = collegeSearch.toLowerCase().split(/\s+/).filter(Boolean);
+  const filteredColleges = colleges
+    .filter(c => {
+      const targetText = `${c.name} ${c.slug} ${c.state || ''}`.toLowerCase();
+      return searchWords.every(word => targetText.includes(word));
+    })
+    .sort((a, b) => {
+      if (!collegeSearch) return 0;
+      const score = (c) => {
+        const name = c.name.toLowerCase();
+        const s = collegeSearch.toLowerCase().trim();
+        if (name.startsWith(s)) return 100;
+        if (name.includes(` ${s}`)) return 80;
+        if (name.includes(s)) return 50;
+        return 0;
+      };
+      return score(b) - score(a);
+    });
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -109,17 +131,75 @@ export default function Register() {
 
         <div>
           <label className="subheading" style={{ display: 'block', marginBottom: '0.4rem' }}>College</label>
+          <div style={{ position: 'relative' }}>
+            <input
+              className="input"
+              id="college_id"
+              placeholder="Type to search your college…"
+              value={collegeSearch}
+              onChange={e => {
+                setCollegeSearch(e.target.value);
+                setShowCollegeDropdown(true);
+                if (form.college_id) setForm(f => ({ ...f, college_id: '' }));
+              }}
+              onFocus={() => setShowCollegeDropdown(true)}
+              onBlur={() => setTimeout(() => setShowCollegeDropdown(false), 200)}
+              style={{ borderColor: errors.college_id ? 'var(--hard)' : undefined }}
+            />
+            {showCollegeDropdown && (
+              <div style={{
+                position: 'absolute', top: '100%', left: 0, right: 0, 
+                maxHeight: 220, overflowY: 'auto', background: 'var(--surface)', 
+                border: '1px solid var(--border)', borderRadius: 'var(--radius)', 
+                zIndex: 10, marginTop: '0.25rem', padding: '0.25rem',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+              }}>
+                {filteredColleges.length > 0 ? filteredColleges.map(c => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault(); // Prevent input from losing focus
+                      setForm(f => ({ ...f, college_id: c.id }));
+                      setCollegeSearch(c.name);
+                      setShowCollegeDropdown(false);
+                    }}
+                    style={{
+                      display: 'block', width: '100%', padding: '0.5rem', 
+                      textAlign: 'left', background: form.college_id === c.id ? 'var(--surface-2)' : 'transparent', 
+                      border: 'none', cursor: 'pointer', borderRadius: '4px',
+                      color: 'var(--foreground)', fontSize: '0.875rem'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
+                    onMouseLeave={e => e.currentTarget.style.background = form.college_id === c.id ? 'var(--surface-2)' : 'transparent'}
+                  >
+                    {c.name}
+                  </button>
+                )) : (
+                  <div style={{ padding: '0.5rem', fontSize: '0.875rem', color: 'var(--muted-foreground)' }}>No colleges found</div>
+                )}
+              </div>
+            )}
+          </div>
+          {errors.college_id && <p style={{ fontSize: '0.75rem', color: 'var(--hard)', marginTop: '0.25rem' }}>{errors.college_id}</p>}
+        </div>
+
+        <div>
+          <label className="subheading" style={{ display: 'block', marginBottom: '0.4rem' }}>Year</label>
           <select
             className="input"
-            id="college_id"
-            value={form.college_id}
-            onChange={e => setForm(f => ({ ...f, college_id: e.target.value }))}
-            style={{ borderColor: errors.college_id ? 'var(--hard)' : undefined, cursor: 'pointer' }}
+            value={form.graduation_year}
+            onChange={e => setForm(f => ({ ...f, graduation_year: e.target.value }))}
+            style={{ borderColor: errors.graduation_year ? 'var(--hard)' : undefined, cursor: 'pointer' }}
           >
-            <option value="">Select your college…</option>
-            {colleges.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="">Select your year…</option>
+            <option value="1st Year">1st Year</option>
+            <option value="2nd Year">2nd Year</option>
+            <option value="3rd Year">3rd Year</option>
+            <option value="4th Year">4th Year</option>
+            <option value="Graduated">Graduated</option>
           </select>
-          {errors.college_id && <p style={{ fontSize: '0.75rem', color: 'var(--hard)', marginTop: '0.25rem' }}>{errors.college_id}</p>}
+          {errors.graduation_year && <p style={{ fontSize: '0.75rem', color: 'var(--hard)', marginTop: '0.25rem' }}>{errors.graduation_year}</p>}
         </div>
 
         <p style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', lineHeight: 1.6, marginTop: '0.25rem' }}>

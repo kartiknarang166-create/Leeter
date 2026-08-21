@@ -22,6 +22,8 @@ export default function Leaderboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState('total_solved');
+  const [yearFilter, setYearFilter] = useState('');
+  const [showYearDropdown, setShowYearDropdown] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [dailyChallenge, setDailyChallenge] = useState(null);
   const [compareMode, setCompareMode] = useState(false);
@@ -35,7 +37,9 @@ export default function Leaderboard() {
 
   const fetchLeaderboard = () => {
     setLoading(true);
-    api.get(`/leaderboard/${slug}?sort=${sort}`)
+    let url = `/leaderboard/${slug}?sort=${sort}`;
+    if (yearFilter) url += `&year=${encodeURIComponent(yearFilter)}`;
+    api.get(url)
       .then(res => setData(res.data))
       .catch(() => toast.error('Failed to load leaderboard'))
       .finally(() => setLoading(false));
@@ -52,15 +56,16 @@ export default function Leaderboard() {
     const channel = supabase.channel(`lb-${slug}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'leetcode_stats' }, () => {
         setIsLive(true);
-        api.get(`/leaderboard/${slug}?sort=${sort}`).then(res => { setData(res.data); toast('Rankings updated'); }).catch(() => {});
+        const url = `/leaderboard/${slug}?sort=${sort}${yearFilter ? `&year=${encodeURIComponent(yearFilter)}` : ''}`;
+        api.get(url).then(res => { setData(res.data); toast('Rankings updated'); }).catch(() => {});
         setTimeout(() => setIsLive(false), 3000);
       })
       .subscribe();
     channelRef.current = channel;
     return () => supabase.removeChannel(channel);
-  }, [slug]);
+  }, [slug, sort, yearFilter]);
 
-  useEffect(() => { fetchLeaderboard(); }, [slug, sort]);
+  useEffect(() => { fetchLeaderboard(); }, [slug, sort, yearFilter]);
 
   const handleRowClick = (userId) => {
     if (compareMode) {
@@ -166,6 +171,49 @@ export default function Leaderboard() {
         </div>
 
         <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ position: 'relative' }}>
+            <button 
+              onClick={() => setShowYearDropdown(s => !s)}
+              className={`btn btn-sm ${yearFilter ? 'btn-primary' : 'btn-secondary'}`}
+              style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', height: 'auto', minHeight: '28px' }}
+            >
+              {yearFilter || 'All Years'} <span style={{ opacity: 0.5, marginLeft: 4 }}>▾</span>
+            </button>
+            {showYearDropdown && (
+              <>
+                <div 
+                  onClick={() => setShowYearDropdown(false)} 
+                  style={{ position: 'fixed', inset: 0, zIndex: 40 }} 
+                />
+                <div 
+                  style={{
+                    position: 'absolute', top: '100%', left: 0, marginTop: '0.25rem',
+                    background: 'var(--surface)', border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius)', padding: '0.25rem', zIndex: 50,
+                    display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '120px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  {['', '1st Year', '2nd Year', '3rd Year', '4th Year', 'Graduated'].map(opt => (
+                    <button
+                      key={opt}
+                      onClick={() => { setYearFilter(opt); setShowYearDropdown(false); }}
+                      style={{
+                        background: yearFilter === opt ? 'var(--surface-2)' : 'transparent',
+                        color: 'var(--foreground)', border: 'none', padding: '0.4rem 0.5rem',
+                        textAlign: 'left', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem',
+                        transition: 'background 0.15s'
+                      }}
+                      onMouseEnter={e => { if(yearFilter !== opt) e.currentTarget.style.background = 'var(--surface-2)' }}
+                      onMouseLeave={e => { if(yearFilter !== opt) e.currentTarget.style.background = 'transparent' }}
+                    >
+                      {opt || 'All Years'}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
           <button onClick={() => { setCompareMode(m => !m); setSelected([]); }} className={`btn btn-sm ${compareMode ? 'btn-primary' : 'btn-secondary'}`}>
             {compareMode ? '✕ cancel' : '⇄ compare'}
           </button>
@@ -189,8 +237,58 @@ export default function Leaderboard() {
         </p>
       )}
 
-      {/* Table */}
-      <LeaderboardTable leaderboard={leaderboard} loading={loading} onRowClick={handleRowClick} compareMode={compareMode} selected={selected} currentUserId={user?.id} />
+      {/* Table – locked for unauthenticated users */}
+      {!user && !loading ? (
+        <div style={{
+          position: 'relative',
+          minHeight: '420px',
+          borderRadius: 'var(--radius)',
+          overflow: 'hidden',
+          border: '1px solid var(--border)',
+        }}>
+          {/* Blurred preview of the table underneath */}
+          <div style={{ filter: 'blur(10px)', pointerEvents: 'none', userSelect: 'none', transform: 'scale(1.02)' }}>
+            <LeaderboardTable leaderboard={leaderboard} loading={false} onRowClick={() => {}} compareMode={false} selected={[]} currentUserId={null} />
+          </div>
+
+          {/* Frosted glass overlay */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+            background: 'var(--overlay-bg)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            zIndex: 10, padding: '2.5rem',
+          }}>
+            {/* Lock icon */}
+            <div style={{
+              width: 72, height: 72, borderRadius: '50%',
+              background: 'var(--overlay-lock-bg)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              marginBottom: '1.25rem',
+              border: '1px solid var(--border)',
+            }}>
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--overlay-heading)' }}>
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0110 0v4" />
+              </svg>
+            </div>
+
+            <h3 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--overlay-heading)', marginBottom: '0.5rem', textAlign: 'center' }}>
+              Sign in to view Leaderboard
+            </h3>
+            <p style={{ color: 'var(--overlay-subtext)', fontSize: '0.875rem', marginBottom: '1.75rem', textAlign: 'center', maxWidth: '320px', lineHeight: 1.6 }}>
+              Create a free account or login to see how your college mates rank on LeetCode.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <Link to="/register" className="btn btn-primary">Sign up — it's free</Link>
+              <Link to="/login" className="btn btn-secondary">Login</Link>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <LeaderboardTable leaderboard={leaderboard} loading={loading} onRowClick={handleRowClick} compareMode={compareMode} selected={selected} currentUserId={user?.id} />
+      )}
 
       {showModal && <AddUsernameModal onClose={() => setShowModal(false)} onSuccess={() => { setShowModal(false); fetchLeaderboard(); }} />}
     </div>
@@ -310,7 +408,7 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
       {/* Header row */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '2.5rem 1fr 5rem 4rem 4.5rem 4rem 4rem',
+        gridTemplateColumns: '3.5rem 1fr 5rem 4rem 4.5rem 4rem 4rem',
         gap: '0.5rem',
         padding: '0.4rem 0.75rem',
         fontSize: '0.7rem',
@@ -341,7 +439,7 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
             onClick={() => onRowClick(entry.user.id)}
             style={{
               display: 'grid',
-              gridTemplateColumns: '2.5rem 1fr 5rem 4rem 4.5rem 4rem 4rem',
+              gridTemplateColumns: '3.5rem 1fr 5rem 4rem 4.5rem 4rem 4rem',
               gap: '0.5rem',
               padding: '0.625rem 0.75rem',
               background: isMe ? 'oklch(0.145 0 0 / 4%)' : isSel ? 'oklch(0.556 0 0 / 5%)' : 'transparent',
@@ -358,8 +456,9 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
               borderRadius: isSel ? 'var(--radius)' : 0,
             }}
           >
-            <span style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
-              {medal || i + 1}
+            <span style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span>{i + 1}</span>
+              {medal && <span style={{ fontSize: '1rem' }}>{medal}</span>}
             </span>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
@@ -376,6 +475,11 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
                   {entry.user.display_name || entry.user.username}
                   {isMe && <span style={{ marginLeft: '0.35rem', fontSize: '0.68rem', color: 'var(--muted-foreground)', fontWeight: 400 }}>(you)</span>}
                   {isSel && <span style={{ marginLeft: '0.35rem', fontSize: '0.68rem', color: 'var(--muted-foreground)', fontWeight: 400 }}>✓</span>}
+                  {entry.user.graduation_year && entry.user.graduation_year !== 'Unknown' && (
+                    <span style={{ marginLeft: '0.35rem', fontSize: '0.65rem', padding: '0.1rem 0.35rem', background: 'var(--border)', borderRadius: '4px', color: 'var(--foreground-70)', fontWeight: 500 }}>
+                      {entry.user.graduation_year}
+                    </span>
+                  )}
                 </div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--foreground-40)' }}>@{entry.user.leetcode_username}</div>
               </div>

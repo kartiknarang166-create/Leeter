@@ -139,6 +139,7 @@ const allColleges = [
   { name: 'IET Lucknow', slug: 'iet-lucknow', state: 'Uttar Pradesh', type: 'State' },
   { name: 'JSS Academy of Technical Education', slug: 'jss-noida', state: 'Uttar Pradesh', type: 'Private' },
   { name: 'JIIT Noida (Jaypee)', slug: 'jiit-noida', state: 'Private', type: 'Private' },
+  { name: 'UPES Dehradun', slug: 'upes-dehradun', state: 'Uttarakhand', type: 'Private' },
 ];
 
 async function seed() {
