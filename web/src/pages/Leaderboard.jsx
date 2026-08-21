@@ -254,30 +254,30 @@ export default function Leaderboard() {
           {/* Frosted glass overlay */}
           <div style={{
             position: 'absolute', inset: 0,
-            backdropFilter: 'blur(4px)',
-            WebkitBackdropFilter: 'blur(4px)',
-            background: 'rgba(var(--background-rgb, 255,255,255), 0.55)',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+            background: 'var(--overlay-bg)',
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
             zIndex: 10, padding: '2.5rem',
           }}>
             {/* Lock icon */}
             <div style={{
               width: 72, height: 72, borderRadius: '50%',
-              background: 'var(--surface-2, rgba(0,0,0,0.07))',
+              background: 'var(--overlay-lock-bg)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               marginBottom: '1.25rem',
               border: '1px solid var(--border)',
             }}>
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--foreground)' }}>
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--overlay-heading)' }}>
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                 <path d="M7 11V7a5 5 0 0110 0v4" />
               </svg>
             </div>
 
-            <h3 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--foreground)', marginBottom: '0.5rem', textAlign: 'center' }}>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--overlay-heading)', marginBottom: '0.5rem', textAlign: 'center' }}>
               Sign in to view Leaderboard
             </h3>
-            <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem', marginBottom: '1.75rem', textAlign: 'center', maxWidth: '320px', lineHeight: 1.6 }}>
+            <p style={{ color: 'var(--overlay-subtext)', fontSize: '0.875rem', marginBottom: '1.75rem', textAlign: 'center', maxWidth: '320px', lineHeight: 1.6 }}>
               Create a free account or login to see how your college mates rank on LeetCode.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem' }}>
