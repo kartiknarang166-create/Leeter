@@ -43,7 +43,7 @@ export default function Leaderboard() {
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
-    supabase.from('daily_challenges').select('*').eq('date', today).single()
+    supabase.from('daily_challenges').select('*').eq('date', today).maybeSingle()
       .then(({ data }) => { if (data) setDailyChallenge(data); });
   }, []);
 
@@ -305,7 +305,8 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
+    <div style={{ width: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: '1rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', minWidth: '36rem' }}>
       {/* Header row */}
       <div style={{
         display: 'grid',
@@ -390,6 +391,7 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
           </button>
         );
       })}
+      </div>
     </div>
   );
 }
