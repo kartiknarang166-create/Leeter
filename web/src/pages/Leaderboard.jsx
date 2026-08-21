@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { DottedSeparator } from '../components/DottedUnderline';
 import AddUsernameModal from '../components/AddUsernameModal';
+import { Medal } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const SORT_OPTIONS = [
@@ -358,7 +359,7 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
       {/* Header row */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '2.5rem 1fr 5rem 4rem 4.5rem 4rem 4rem',
+        gridTemplateColumns: '3.5rem 1fr 5rem 4rem 4.5rem 4rem 4rem',
         gap: '0.5rem',
         padding: '0.4rem 0.75rem',
         fontSize: '0.7rem',
@@ -381,7 +382,7 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
       {leaderboard.map((entry, i) => {
         const isMe = entry.user.id === currentUserId;
         const isSel = selected.includes(entry.user.id);
-        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null;
+        const medalColor = i === 0 ? '#eab308' : i === 1 ? '#94a3b8' : i === 2 ? '#b45309' : null;
 
         return (
           <button
@@ -389,7 +390,7 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
             onClick={() => onRowClick(entry.user.id)}
             style={{
               display: 'grid',
-              gridTemplateColumns: '2.5rem 1fr 5rem 4rem 4.5rem 4rem 4rem',
+              gridTemplateColumns: '3.5rem 1fr 5rem 4rem 4.5rem 4rem 4rem',
               gap: '0.5rem',
               padding: '0.625rem 0.75rem',
               background: isMe ? 'oklch(0.145 0 0 / 4%)' : isSel ? 'oklch(0.556 0 0 / 5%)' : 'transparent',
@@ -407,8 +408,8 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
             }}
           >
             <span style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span>{i + 1}</span>
-              {medal && <span style={{ fontSize: '1rem' }}>{medal}</span>}
+              <span style={{ width: '16px', textAlign: 'center' }}>{i + 1}</span>
+              {medalColor && <Medal size={16} color={medalColor} fill={medalColor} strokeWidth={1} style={{ opacity: 0.9 }} />}
             </span>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
