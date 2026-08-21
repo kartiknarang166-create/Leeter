@@ -177,7 +177,7 @@ export default function Leaderboard() {
               className={`btn btn-sm ${yearFilter ? 'btn-primary' : 'btn-secondary'}`}
               style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', height: 'auto', minHeight: '28px' }}
             >
-              {yearFilter ? `Class of ${yearFilter}` : 'All Years'} <span style={{ opacity: 0.5, marginLeft: 4 }}>▾</span>
+              {yearFilter ? `Passout Year: ${yearFilter}` : 'Passout Year: All Years'} <span style={{ opacity: 0.5, marginLeft: 4 }}>▾</span>
             </button>
             {showYearDropdown && (
               <>
@@ -207,7 +207,7 @@ export default function Leaderboard() {
                       onMouseEnter={e => { if(yearFilter !== String(opt)) e.currentTarget.style.background = 'var(--surface-2)' }}
                       onMouseLeave={e => { if(yearFilter !== String(opt)) e.currentTarget.style.background = 'transparent' }}
                     >
-                      {opt ? `Class of ${opt}` : 'All Years'}
+                      {opt ? String(opt) : 'All Years'}
                     </button>
                   ))}
                 </div>
@@ -456,9 +456,8 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
               borderRadius: isSel ? 'var(--radius)' : 0,
             }}
           >
-            <span style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span>{i + 1}</span>
-              {medal && <span style={{ fontSize: '1rem' }}>{medal}</span>}
+            <span style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '24px' }}>
+              {medal ? <span style={{ fontSize: '1.2rem' }}>{medal}</span> : <span>{i + 1}</span>}
             </span>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
