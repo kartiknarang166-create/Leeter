@@ -237,34 +237,58 @@ export default function Leaderboard() {
         </p>
       )}
 
-      {/* Table */}
-      <div style={{ position: 'relative' }}>
-        <div style={{ filter: !user && !loading ? 'blur(8px)' : 'none', pointerEvents: !user ? 'none' : 'auto', userSelect: !user ? 'none' : 'auto' }}>
-          <LeaderboardTable leaderboard={leaderboard} loading={loading} onRowClick={handleRowClick} compareMode={compareMode} selected={selected} currentUserId={user?.id} />
-        </div>
-        
-        {!user && !loading && (
+      {/* Table – locked for unauthenticated users */}
+      {!user && !loading ? (
+        <div style={{
+          position: 'relative',
+          minHeight: '420px',
+          borderRadius: 'var(--radius)',
+          overflow: 'hidden',
+          border: '1px solid var(--border)',
+        }}>
+          {/* Blurred preview of the table underneath */}
+          <div style={{ filter: 'blur(10px)', pointerEvents: 'none', userSelect: 'none', transform: 'scale(1.02)' }}>
+            <LeaderboardTable leaderboard={leaderboard} loading={false} onRowClick={() => {}} compareMode={false} selected={[]} currentUserId={null} />
+          </div>
+
+          {/* Frosted glass overlay */}
           <div style={{
-            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+            position: 'absolute', inset: 0,
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)',
+            background: 'rgba(var(--background-rgb, 255,255,255), 0.55)',
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            zIndex: 10, background: 'rgba(0,0,0,0.05)', borderRadius: 'var(--radius)',
-            padding: '2rem'
+            zIndex: 10, padding: '2.5rem',
           }}>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--foreground)', marginBottom: '1rem', opacity: 0.8 }}>
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0110 0v4"></path>
-            </svg>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--foreground)', marginBottom: '0.5rem' }}>Sign in to view Leaderboard</h3>
-            <p style={{ color: 'var(--muted-foreground)', fontSize: '0.9rem', marginBottom: '1.5rem', textAlign: 'center', maxWidth: '300px' }}>
-              Sign up or login first to view the global leaderboard and track your college mates' progress.
+            {/* Lock icon */}
+            <div style={{
+              width: 72, height: 72, borderRadius: '50%',
+              background: 'var(--surface-2, rgba(0,0,0,0.07))',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              marginBottom: '1.25rem',
+              border: '1px solid var(--border)',
+            }}>
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--foreground)' }}>
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0110 0v4" />
+              </svg>
+            </div>
+
+            <h3 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--foreground)', marginBottom: '0.5rem', textAlign: 'center' }}>
+              Sign in to view Leaderboard
+            </h3>
+            <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem', marginBottom: '1.75rem', textAlign: 'center', maxWidth: '320px', lineHeight: 1.6 }}>
+              Create a free account or login to see how your college mates rank on LeetCode.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <Link to="/register" className="btn btn-primary" style={{ pointerEvents: 'auto' }}>Sign up</Link>
-              <Link to="/login" className="btn btn-secondary" style={{ pointerEvents: 'auto' }}>Login</Link>
+              <Link to="/register" className="btn btn-primary">Sign up — it's free</Link>
+              <Link to="/login" className="btn btn-secondary">Login</Link>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <LeaderboardTable leaderboard={leaderboard} loading={loading} onRowClick={handleRowClick} compareMode={compareMode} selected={selected} currentUserId={user?.id} />
+      )}
 
       {showModal && <AddUsernameModal onClose={() => setShowModal(false)} onSuccess={() => { setShowModal(false); fetchLeaderboard(); }} />}
     </div>
