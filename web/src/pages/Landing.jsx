@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 import { DottedSeparator } from '../components/DottedUnderline';
+import { useAuth } from '../context/AuthContext';
 
 export default function Landing() {
+  const { user } = useAuth();
   return (
     <div className="container" style={{ paddingTop: '2.5rem', paddingBottom: '4rem' }}>
       {/* Header - prose intro */}
@@ -9,7 +11,7 @@ export default function Landing() {
 
       {/* CTA Button */}
       <div style={{ marginTop: '2.5rem' }}>
-        <Link to="/college" className="btn btn-primary btn-lg">
+        <Link to={user?.college?.slug ? `/college/${user.college.slug}` : "/college"} className="btn btn-primary btn-lg">
           View Leaderboards →
         </Link>
       </div>

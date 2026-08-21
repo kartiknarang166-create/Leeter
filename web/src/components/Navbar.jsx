@@ -6,10 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import DottedUnderline from './DottedUnderline';
 
-const navLinks = [
-  { title: 'Home', href: '/' },
-  { title: 'Leaderboard', href: '/college' },
-];
+// navLinks moved inside component to access user state
 
 function isActive(pathname, href) {
   if (href === '/') return pathname === '/';
@@ -26,6 +23,11 @@ export default function Navbar() {
   const { theme, toggle } = useTheme();
 
   const handleLogout = () => { logout(); navigate('/'); };
+
+  const navLinks = [
+    { title: 'Home', href: '/' },
+    { title: 'Leaderboard', href: user?.college?.slug ? `/college/${user.college.slug}` : '/college' },
+  ];
 
   return (
     <nav
