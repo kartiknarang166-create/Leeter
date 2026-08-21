@@ -70,9 +70,9 @@ export default function Navbar() {
             />
           </div>
 
-          {/* "pull the cord!" hint — fixed positioned to align with the bob */}
+          {/* "pull the cord!" hint — fixed, near the TOP where the wire starts */}
           <div className="desktop-only" style={{
-            position: 'fixed', top: '142px', right: '9.5rem', zIndex: 49,
+            position: 'fixed', top: '28px', right: '9.5rem', zIndex: 49,
             display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
             pointerEvents: 'none', userSelect: 'none', whiteSpace: 'nowrap',
           }}>
@@ -86,18 +86,16 @@ export default function Navbar() {
             }}>
               pull the<br />cord!
             </span>
-            {/* Arrow pointing right toward the bob */}
-            <svg width="44" height="22" viewBox="0 0 44 22" fill="none"
+            {/* Arrow: from below-right of text, pointing right toward the wire */}
+            <svg width="44" height="26" viewBox="0 0 44 26" fill="none"
               style={{ alignSelf: 'flex-end', marginTop: '4px', marginRight: '-4px' }}>
-              {/* Shaft: goes from left to right with slight upward curve */}
-              <path d="M4 18 C12 16 26 10 38 6"
+              <path d="M4 20 C14 18 26 14 38 8"
                 stroke={theme === 'dark' ? '#736E63' : '#81818B'}
                 strokeWidth="1.6" strokeLinecap="round" fill="none" />
-              {/* Arrowhead pointing right */}
-              <path d="M38 6 L32 5"
+              <path d="M38 8 L31 9"
                 stroke={theme === 'dark' ? '#736E63' : '#81818B'}
                 strokeWidth="1.6" strokeLinecap="round" />
-              <path d="M38 6 L35 12"
+              <path d="M38 8 L36 15"
                 stroke={theme === 'dark' ? '#736E63' : '#81818B'}
                 strokeWidth="1.6" strokeLinecap="round" />
             </svg>
