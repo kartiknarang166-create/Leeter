@@ -57,7 +57,7 @@ export default function Navbar() {
 
         {/* Right: pullcord theme toggle + auth */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          
+
           <div className="desktop-only" style={{ position: 'absolute', top: 0, right: '1.5rem', zIndex: 50 }} title={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}>
             <PullCord
               onPull={toggle}
