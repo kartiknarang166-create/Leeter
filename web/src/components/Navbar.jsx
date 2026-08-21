@@ -72,7 +72,7 @@ export default function Navbar() {
 
           {/* "pull the cord!" hint — fixed, aligned to the left of the bob */}
           <div className="desktop-only" style={{
-            position: 'fixed', top: '128px', right: '12rem', zIndex: 49,
+            position: 'fixed', top: '138px', right: '12rem', zIndex: 49,
             display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
             pointerEvents: 'none', userSelect: 'none', whiteSpace: 'nowrap',
           }}>
@@ -86,20 +86,6 @@ export default function Navbar() {
             }}>
               pull the<br />cord!
             </span>
-            {/* Big sweeping arrow: starts bottom-left, arcs up-right toward the bob */}
-            <svg width="100" height="62" viewBox="0 0 100 62" fill="none"
-              style={{ alignSelf: 'flex-end', marginTop: '-4px', marginRight: '-8px' }}>
-              <path d="M 6 54 C 18 60 62 8 88 20"
-                stroke={theme === 'dark' ? '#736E63' : '#81818B'}
-                strokeWidth="2.2" strokeLinecap="round" fill="none" />
-              {/* Arrowhead at tip — pointing in direction of curve arrival */}
-              <path d="M 88 20 L 76 20"
-                stroke={theme === 'dark' ? '#736E63' : '#81818B'}
-                strokeWidth="2.2" strokeLinecap="round" />
-              <path d="M 88 20 L 82 30"
-                stroke={theme === 'dark' ? '#736E63' : '#81818B'}
-                strokeWidth="2.2" strokeLinecap="round" />
-            </svg>
           </div>
 
           <div className="mobile-only">
