@@ -70,34 +70,35 @@ export default function Navbar() {
             />
           </div>
 
-          {/* "pull the cord!" hint — fixed, near the TOP where the wire starts */}
+          {/* "pull the cord!" hint — fixed, aligned to the left of the bob */}
           <div className="desktop-only" style={{
-            position: 'fixed', top: '28px', right: '9.5rem', zIndex: 49,
+            position: 'fixed', top: '128px', right: '12rem', zIndex: 49,
             display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
             pointerEvents: 'none', userSelect: 'none', whiteSpace: 'nowrap',
           }}>
             <span style={{
               fontFamily: "'Caveat', cursive",
-              fontSize: '1.05rem',
-              fontWeight: 500,
+              fontSize: '1.15rem',
+              fontWeight: 600,
               color: theme === 'dark' ? '#736E63' : '#81818B',
               lineHeight: 1.3,
               textAlign: 'right',
             }}>
               pull the<br />cord!
             </span>
-            {/* Arrow: from below-right of text, pointing right toward the wire */}
-            <svg width="44" height="26" viewBox="0 0 44 26" fill="none"
-              style={{ alignSelf: 'flex-end', marginTop: '4px', marginRight: '-4px' }}>
-              <path d="M4 20 C14 18 26 14 38 8"
+            {/* Big sweeping arrow: starts bottom-left, arcs up-right toward the bob */}
+            <svg width="100" height="62" viewBox="0 0 100 62" fill="none"
+              style={{ alignSelf: 'flex-end', marginTop: '-4px', marginRight: '-8px' }}>
+              <path d="M 6 54 C 18 60 62 8 88 20"
                 stroke={theme === 'dark' ? '#736E63' : '#81818B'}
-                strokeWidth="1.6" strokeLinecap="round" fill="none" />
-              <path d="M38 8 L31 9"
+                strokeWidth="2.2" strokeLinecap="round" fill="none" />
+              {/* Arrowhead at tip — pointing in direction of curve arrival */}
+              <path d="M 88 20 L 76 20"
                 stroke={theme === 'dark' ? '#736E63' : '#81818B'}
-                strokeWidth="1.6" strokeLinecap="round" />
-              <path d="M38 8 L36 15"
+                strokeWidth="2.2" strokeLinecap="round" />
+              <path d="M 88 20 L 82 30"
                 stroke={theme === 'dark' ? '#736E63' : '#81818B'}
-                strokeWidth="1.6" strokeLinecap="round" />
+                strokeWidth="2.2" strokeLinecap="round" />
             </svg>
           </div>
 
