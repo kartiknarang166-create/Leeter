@@ -50,7 +50,7 @@ export default function Register() {
     <div className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem', maxWidth: '28rem' }}>
       <p style={{ color: 'var(--foreground)', fontSize: '1rem', lineHeight: 1.75 }}>
         Create your LeetRank account, pick your college, then link your LeetCode username
-        to join the leaderboard. One LeetCode account per user — choose wisely.
+        to join the leaderboard. One LeetCode account per user - choose wisely.
       </p>
 
       <DottedSeparator style={{ margin: '1.5rem 0' }} />
@@ -123,7 +123,7 @@ export default function Register() {
         </div>
 
         <p style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', lineHeight: 1.6, marginTop: '0.25rem' }}>
-          After signing up, link your LeetCode username from the leaderboard page. You can only link one account — it cannot be changed.
+          After signing up, link your LeetCode username from the leaderboard page. You can only link one account - it cannot be changed.
         </p>
 
         <button type="submit" className="btn btn-primary" disabled={loading}>

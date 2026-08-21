@@ -4,7 +4,7 @@ import { DottedSeparator } from '../components/DottedUnderline';
 export default function Landing() {
   return (
     <div className="container" style={{ paddingTop: '2.5rem', paddingBottom: '4rem' }}>
-      {/* Header — prose intro */}
+      {/* Header - prose intro */}
       <Header />
 
       {/* CTA Button */}
@@ -32,10 +32,10 @@ function Header() {
         Track your progress and compete with peers from your institution.
         Rankings update every day at{' '}
         <span style={{ color: 'var(--foreground)', fontWeight: 500 }}>12 PM IST</span>
-        {' '}— so every problem you solve counts.
+        {' '}- so every problem you solve counts.
       </p>
       <p style={{ color: 'var(--foreground-70)', fontSize: '1rem', lineHeight: 1.75, marginTop: '1rem' }}>
-        Sign up, link your LeetCode account once, and you're on the board. No fluff — just
+        Sign up, link your LeetCode account once, and you're on the board. No fluff - just
         rankings, streaks, and the satisfaction of climbing past your classmates.
       </p>
     </div>
@@ -61,7 +61,7 @@ function HowItWorks() {
         </svg>
       ),
       title: 'Create an account',
-      desc: 'Username + password — no OAuth.',
+      desc: 'Username + password - no OAuth.',
     },
     {
       icon: (

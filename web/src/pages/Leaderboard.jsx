@@ -123,7 +123,7 @@ export default function Leaderboard() {
 
       <DottedSeparator style={{ margin: '1.25rem 0' }} />
 
-      {/* Head-to-head panel — shown when ?compare=id1,id2 is in URL */}
+      {/* Head-to-head panel - shown when ?compare=id1,id2 is in URL */}
       {compareEntries.length === 2 && (
         <>
           <HeadToHead
@@ -266,7 +266,7 @@ function HeadToHead({ a, b, onClose }) {
               {/* A side */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'flex-end' }}>
                 <span style={{ fontWeight: aWin ? 700 : 400, color: aWin ? 'var(--foreground)' : 'var(--foreground-70)', fontSize: '0.9rem' }}>
-                  {s.aVal ?? '—'}
+                  {s.aVal ?? '-'}
                 </span>
                 <div style={{ width: Math.round(60 * (s.aVal || 0) / max), height: 4, borderRadius: 2, background: aWin ? 'var(--foreground)' : 'var(--border)', minWidth: 2, transition: 'width 0.4s' }} />
               </div>
@@ -280,7 +280,7 @@ function HeadToHead({ a, b, onClose }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <div style={{ width: Math.round(60 * (s.bVal || 0) / max), height: 4, borderRadius: 2, background: bWin ? 'var(--foreground)' : 'var(--border)', minWidth: 2, transition: 'width 0.4s' }} />
                 <span style={{ fontWeight: bWin ? 700 : 400, color: bWin ? 'var(--foreground)' : 'var(--foreground-70)', fontSize: '0.9rem' }}>
-                  {s.bVal ?? '—'}
+                  {s.bVal ?? '-'}
                 </span>
               </div>
             </div>
@@ -300,7 +300,7 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
 
   if (!leaderboard.length) return (
     <div style={{ paddingTop: '3rem', paddingBottom: '3rem', textAlign: 'center' }}>
-      <p style={{ color: 'var(--muted-foreground)', fontSize: '0.9rem' }}>No one here yet — be the first to join!</p>
+      <p style={{ color: 'var(--muted-foreground)', fontSize: '0.9rem' }}>No one here yet - be the first to join!</p>
     </div>
   );
 
@@ -385,7 +385,7 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
             <span style={{ textAlign: 'right', color: 'var(--medium)', fontSize: '0.85rem' }}>{entry.medium_solved}</span>
             <span style={{ textAlign: 'right', color: 'var(--hard)', fontSize: '0.85rem' }}>{entry.hard_solved}</span>
             <span style={{ textAlign: 'right', fontSize: '0.85rem', color: entry.streak > 0 ? '#f97316' : 'var(--foreground-40)' }}>
-              {entry.streak > 0 ? `${entry.streak}🔥` : '—'}
+              {entry.streak > 0 ? `${entry.streak}🔥` : '-'}
             </span>
           </button>
         );

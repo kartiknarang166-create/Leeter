@@ -1,6 +1,6 @@
 import { useId } from 'react';
 
-/* DottedUnderline — ported from reference dotted-underline.tsx */
+/* DottedUnderline - ported from reference dotted-underline.tsx */
 export default function DottedUnderline({ visible = true, color }) {
   const id = useId().replace(/:/g, '');
   return (
@@ -28,7 +28,7 @@ export default function DottedUnderline({ visible = true, color }) {
   );
 }
 
-/* DottedSeparator — ported from reference separator.tsx (full-width, 40% opacity) */
+/* DottedSeparator - ported from reference separator.tsx (full-width, 40% opacity) */
 export function DottedSeparator({ className = '', style = {} }) {
   const id = useId().replace(/:/g, '');
   return (

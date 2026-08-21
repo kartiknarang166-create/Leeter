@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { PullCord } from 'pullcord';
+import 'pullcord/pullcord.css';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import DottedUnderline from './DottedUnderline';
@@ -28,10 +28,10 @@ export default function Navbar() {
 
   return (
     <nav
+      className="container"
       style={{
-        maxWidth: '42rem',
-        margin: '0 auto',
-        padding: '1rem 1rem 0',
+        paddingTop: '1rem',
+        paddingBottom: 0,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-start',
@@ -49,55 +49,27 @@ export default function Navbar() {
             lineHeight: 1,
           }}>
             Leeter{' '}
-            <span style={{ color: 'var(--foreground-40)', fontWeight: 400 }}>—</span>{' '}
+            <span style={{ color: 'var(--foreground-40)', fontWeight: 400 }}>-</span>{' '}
             <span style={{ fontWeight: 400, fontStyle: 'italic', color: 'var(--foreground-70)' }}>compete</span>
           </h1>
         </Link>
 
-        {/* Right: theme + auth */}
+        {/* Right: pullcord theme toggle + auth */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button
-            onClick={toggle}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: theme === 'dark' ? 'flex-end' : 'flex-start',
-              width: 44,
-              height: 24,
-              borderRadius: 999,
-              background: theme === 'dark' ? 'var(--surface-2)' : 'var(--border)',
-              padding: 2,
-              cursor: 'pointer',
-              border: 'none',
-              transition: 'background 0.3s ease',
-            }}
-            aria-label="Toggle theme"
-          >
-            <motion.div
-              layout
-              transition={{ type: "spring", stiffness: 700, damping: 40 }}
-              style={{
-                width: 20,
-                height: 20,
-                borderRadius: '50%',
-                background: theme === 'dark' ? '#000' : '#fff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+          <div style={{ position: 'relative' }} title={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}>
+
+            <PullCord
+              onPull={toggle}
+              pulled={theme !== 'dark'}
+              ariaLabel={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              config={{
+                gravity: 1250,
+                damping: 0.94,
+                iterations: 20,
+                stretchMax: 26,
               }}
-            >
-              <motion.span
-                key={theme}
-                initial={{ opacity: 0, scale: 0.5, rotate: -45 }}
-                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                transition={{ duration: 0.2 }}
-                style={{ fontSize: '0.7rem', lineHeight: 1 }}
-              >
-                {theme === 'dark' ? '🌙' : '☀️'}
-              </motion.span>
-            </motion.div>
-          </button>
+            />
+          </div>
           {user ? (
             <>
               <Link to={`/profile/${user.id}`} style={{ fontSize: '0.8rem', color: 'var(--foreground-70)', textDecoration: 'none' }}>
@@ -116,7 +88,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Row 2: nav links with dotted underline — exactly like reference */}
+      {/* Row 2: nav links with dotted underline - exactly like reference */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
         {navLinks.map(link => {
           const active = isActive(location.pathname, link.href);

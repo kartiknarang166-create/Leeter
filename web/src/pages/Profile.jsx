@@ -40,7 +40,7 @@ export default function Profile() {
         ← Back
       </button>
 
-      {/* Profile header — mirrors header.tsx prose style */}
+      {/* Profile header - mirrors header.tsx prose style */}
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.875rem' }}>
         <div style={{
           width: 48, height: 48, borderRadius: 10, flexShrink: 0,
@@ -68,7 +68,7 @@ export default function Profile() {
             )}
           </p>
           <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginTop: '0.1rem' }}>
-            🏫 {user.college?.name || '—'}
+            🏫 {user.college?.name || '-'}
             {collegeRank && <span> · #{collegeRank} college rank</span>}
           </p>
         </div>
@@ -78,13 +78,13 @@ export default function Profile() {
 
       {stats ? (
         <>
-          {/* Stats — mirrors Work items layout */}
+          {/* Stats - mirrors Work items layout */}
           <h2 className="subheading" style={{ marginBottom: '1rem' }}>Statistics</h2>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
             {[
               { label: 'Total Solved', value: total, desc: `${easy} easy · ${medium} medium · ${hard} hard` },
-              { label: 'Global Ranking', value: stats.ranking ? `#${stats.ranking.toLocaleString()}` : '—', desc: 'on leetcode.com' },
+              { label: 'Global Ranking', value: stats.ranking ? `#${stats.ranking.toLocaleString()}` : '-', desc: 'on leetcode.com' },
               { label: 'Current Streak', value: `${stats.streak}🔥`, desc: `${stats.total_active_days || 0} total active days` },
               { label: 'Acceptance Rate', value: `${stats.acceptance_rate?.toFixed(1) || 0}%`, desc: 'across all submissions' },
             ].map(row => (
