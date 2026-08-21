@@ -30,10 +30,23 @@ export default function Register() {
   };
 
   const searchWords = collegeSearch.toLowerCase().split(/\s+/).filter(Boolean);
-  const filteredColleges = colleges.filter(c => {
-    const targetText = `${c.name} ${c.slug} ${c.state || ''}`.toLowerCase();
-    return searchWords.every(word => targetText.includes(word));
-  });
+  const filteredColleges = colleges
+    .filter(c => {
+      const targetText = `${c.name} ${c.slug} ${c.state || ''}`.toLowerCase();
+      return searchWords.every(word => targetText.includes(word));
+    })
+    .sort((a, b) => {
+      if (!collegeSearch) return 0;
+      const score = (c) => {
+        const name = c.name.toLowerCase();
+        const s = collegeSearch.toLowerCase().trim();
+        if (name.startsWith(s)) return 100;
+        if (name.includes(` ${s}`)) return 80;
+        if (name.includes(s)) return 50;
+        return 0;
+      };
+      return score(b) - score(a);
+    });
 
   const [showPassword, setShowPassword] = useState(false);
 

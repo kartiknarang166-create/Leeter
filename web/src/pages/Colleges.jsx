@@ -20,10 +20,23 @@ export default function Colleges() {
   }, []);
 
   const searchWords = search.toLowerCase().split(/\s+/).filter(Boolean);
-  const filtered = colleges.filter(c => {
-    const targetText = `${c.name} ${c.slug} ${c.state || ''}`.toLowerCase();
-    return searchWords.every(word => targetText.includes(word));
-  });
+  const filtered = colleges
+    .filter(c => {
+      const targetText = `${c.name} ${c.slug} ${c.state || ''}`.toLowerCase();
+      return searchWords.every(word => targetText.includes(word));
+    })
+    .sort((a, b) => {
+      if (!search) return 0;
+      const score = (c) => {
+        const name = c.name.toLowerCase();
+        const s = search.toLowerCase().trim();
+        if (name.startsWith(s)) return 100;
+        if (name.includes(` ${s}`)) return 80;
+        if (name.includes(s)) return 50;
+        return 0;
+      };
+      return score(b) - score(a);
+    });
 
   return (
     <div className="container" style={{ paddingTop: '1.5rem', paddingBottom: '4rem' }}>
