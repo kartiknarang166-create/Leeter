@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { motion } from 'motion/react';
 import { PullCord } from 'pullcord';
 import 'pullcord/pullcord.css';
 import { useAuth } from '../context/AuthContext';
@@ -56,20 +57,61 @@ export default function Navbar() {
 
         {/* Right: pullcord theme toggle + auth */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ position: 'relative' }} title={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}>
-
+          
+          <div className="desktop-only" style={{ position: 'absolute', top: 0, right: '1.5rem', zIndex: 50 }} title={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}>
             <PullCord
               onPull={toggle}
               pulled={theme !== 'dark'}
               ariaLabel={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-              config={{
-                gravity: 1250,
-                damping: 0.94,
-                iterations: 20,
-                stretchMax: 26,
-              }}
+              config={{ gravity: 1250, damping: 0.94, iterations: 20, stretchMax: 26 }}
             />
           </div>
+
+          <div className="mobile-only">
+            <button
+              onClick={toggle}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: theme === 'dark' ? 'flex-end' : 'flex-start',
+                width: 44,
+                height: 24,
+                borderRadius: 999,
+                background: theme === 'dark' ? 'var(--surface-2)' : 'var(--border)',
+                padding: 2,
+                cursor: 'pointer',
+                border: 'none',
+                transition: 'background 0.3s ease',
+              }}
+              aria-label="Toggle theme"
+            >
+              <motion.div
+                layout
+                transition={{ type: "spring", stiffness: 700, damping: 40 }}
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: '50%',
+                  background: theme === 'dark' ? '#000' : '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+                }}
+              >
+                <motion.span
+                  key={theme}
+                  initial={{ opacity: 0, scale: 0.5, rotate: -45 }}
+                  animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                  transition={{ duration: 0.2 }}
+                  style={{ fontSize: '0.7rem', lineHeight: 1 }}
+                >
+                  {theme === 'dark' ? '🌙' : '☀️'}
+                </motion.span>
+              </motion.div>
+            </button>
+          </div>
+
           {user ? (
             <>
               <Link to={`/profile/${user.id}`} style={{ fontSize: '0.8rem', color: 'var(--foreground-70)', textDecoration: 'none' }}>
