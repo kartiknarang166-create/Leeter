@@ -158,7 +158,8 @@ export default function Register() {
                   <button
                     key={c.id}
                     type="button"
-                    onClick={() => {
+                    onMouseDown={(e) => {
+                      e.preventDefault(); // Prevent input from losing focus
                       setForm(f => ({ ...f, college_id: c.id }));
                       setCollegeSearch(c.name);
                       setShowCollegeDropdown(false);
