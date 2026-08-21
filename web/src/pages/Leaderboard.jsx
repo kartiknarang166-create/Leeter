@@ -5,7 +5,6 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { DottedSeparator } from '../components/DottedUnderline';
 import AddUsernameModal from '../components/AddUsernameModal';
-import { Medal } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const SORT_OPTIONS = [
@@ -382,7 +381,7 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
       {leaderboard.map((entry, i) => {
         const isMe = entry.user.id === currentUserId;
         const isSel = selected.includes(entry.user.id);
-        const medalColor = i === 0 ? '#eab308' : i === 1 ? '#94a3b8' : i === 2 ? '#b45309' : null;
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null;
 
         return (
           <button
@@ -408,8 +407,8 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
             }}
           >
             <span style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ width: '16px', textAlign: 'center' }}>{i + 1}</span>
-              {medalColor && <Medal size={16} color={medalColor} fill={medalColor} strokeWidth={1} style={{ opacity: 0.9 }} />}
+              <span>{i + 1}</span>
+              {medal && <span style={{ fontSize: '1rem' }}>{medal}</span>}
             </span>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
