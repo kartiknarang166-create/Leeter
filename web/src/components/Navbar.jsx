@@ -80,10 +80,10 @@ export default function Navbar() {
           }}>
             <span style={{
               fontFamily: "'Caveat', cursive",
-              fontSize: '1.35rem',
+              fontSize: '1.15rem',
               fontWeight: 600,
               color: theme === 'dark' ? '#736E63' : '#81818B',
-              lineHeight: 1.3,
+              lineHeight: 1.0,
               textAlign: 'right',
             }}>
               pull the<br />cord!
