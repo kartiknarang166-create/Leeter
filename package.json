@@ -1,0 +1,20 @@
+{
+  "name": "leeter",
+  "version": "1.0.0",
+  "description": "College LeetCode Leaderboard — Monorepo",
+  "private": true,
+  "workspaces": [
+    "web",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=web\" \"npm run dev --workspace=backend\"",
+    "dev:web": "npm run dev --workspace=web",
+    "dev:backend": "npm run dev --workspace=backend",
+    "build": "npm run build --workspace=web",
+    "install:all": "npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
