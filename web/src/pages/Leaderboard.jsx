@@ -406,8 +406,9 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
               borderRadius: isSel ? 'var(--radius)' : 0,
             }}
           >
-            <span style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
-              {medal || i + 1}
+            <span style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span>{i + 1}</span>
+              {medal && <span style={{ fontSize: '1rem' }}>{medal}</span>}
             </span>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
