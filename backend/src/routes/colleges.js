@@ -31,7 +31,7 @@ router.get('/', async (req, res) => {
     const result = colleges.map(c => ({
       ...c,
       member_count: countMap[c.id] || 0,
-    }));
+    })).sort((a, b) => b.member_count - a.member_count || a.name.localeCompare(b.name));
 
     res.json({ colleges: result });
   } catch (err) {
