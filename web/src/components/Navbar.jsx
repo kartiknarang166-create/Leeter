@@ -70,9 +70,9 @@ export default function Navbar() {
             />
           </div>
 
-          {/* "pull the cord!" hint — independent absolute, well to the left of the cord */}
+          {/* "pull the cord!" hint — fixed positioned to align with the bob */}
           <div className="desktop-only" style={{
-            position: 'absolute', top: '0.4rem', right: '4.5rem', zIndex: 49,
+            position: 'fixed', top: '142px', right: '9.5rem', zIndex: 49,
             display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
             pointerEvents: 'none', userSelect: 'none', whiteSpace: 'nowrap',
           }}>
@@ -86,18 +86,18 @@ export default function Navbar() {
             }}>
               pull the<br />cord!
             </span>
-            {/* Arrow: starts bottom-right of text, curves up-right toward the cord */}
-            <svg width="38" height="28" viewBox="0 0 38 28" fill="none"
-              style={{ alignSelf: 'flex-end', marginTop: '3px', marginRight: '-6px' }}>
-              {/* Shaft: curved from bottom-left to upper-right */}
-              <path d="M6 24 C12 18 22 10 33 4"
+            {/* Arrow pointing right toward the bob */}
+            <svg width="44" height="22" viewBox="0 0 44 22" fill="none"
+              style={{ alignSelf: 'flex-end', marginTop: '4px', marginRight: '-4px' }}>
+              {/* Shaft: goes from left to right with slight upward curve */}
+              <path d="M4 18 C12 16 26 10 38 6"
                 stroke={theme === 'dark' ? '#736E63' : '#81818B'}
                 strokeWidth="1.6" strokeLinecap="round" fill="none" />
-              {/* Arrowhead at tip (upper-right) */}
-              <path d="M33 4 L26 7"
+              {/* Arrowhead pointing right */}
+              <path d="M38 6 L32 5"
                 stroke={theme === 'dark' ? '#736E63' : '#81818B'}
                 strokeWidth="1.6" strokeLinecap="round" />
-              <path d="M33 4 L31 11"
+              <path d="M38 6 L35 12"
                 stroke={theme === 'dark' ? '#736E63' : '#81818B'}
                 strokeWidth="1.6" strokeLinecap="round" />
             </svg>
