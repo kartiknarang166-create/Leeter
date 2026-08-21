@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/:collegeSlug', async (req, res) => {
   try {
     const { collegeSlug } = req.params;
-    const { sort = 'total_solved', limit = 50 } = req.query;
+    const { sort = 'total_solved', limit = 50, year } = req.query;
 
     // Get college
     const { data: college, error: collegeError } = await supabase
@@ -21,11 +21,17 @@ router.get('/:collegeSlug', async (req, res) => {
     }
 
     // Get users in this college with LeetCode linked
-    const { data: users } = await supabase
+    let usersQuery = supabase
       .from('users')
-      .select('id, username, display_name, leetcode_username, created_at')
+      .select('id, username, display_name, leetcode_username, graduation_year, created_at')
       .eq('college_id', college.id)
       .not('leetcode_username', 'is', null);
+
+    if (year) {
+      usersQuery = usersQuery.eq('graduation_year', year);
+    }
+
+    const { data: users } = await usersQuery;
 
     if (!users || users.length === 0) {
       return res.json({ college, leaderboard: [], total: 0 });

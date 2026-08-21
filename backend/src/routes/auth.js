@@ -12,10 +12,15 @@ const SALT_ROUNDS = 12;
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { username, password, email, college_id } = req.body;
+    const { username, password, email, college_id, graduation_year } = req.body;
 
-    if (!username || !password || !email || !college_id) {
-      return res.status(400).json({ error: 'username, password, email, and college_id are required' });
+    if (!username || !password || !email || !college_id || !graduation_year) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+    
+    const validYears = ['1st Year', '2nd Year', '3rd Year', '4th Year', 'Graduated'];
+    if (!validYears.includes(graduation_year)) {
+      return res.status(400).json({ error: 'Invalid graduation year selected' });
     }
     if (username.length < 3 || username.length > 30) {
       return res.status(400).json({ error: 'Username must be between 3 and 30 characters' });
@@ -66,9 +71,10 @@ router.post('/register', async (req, res) => {
         email: email.toLowerCase(),
         password_hash,
         college_id,
+        graduation_year,
         display_name: username,
       })
-      .select('id, username, email, display_name, college_id, created_at')
+      .select('id, username, email, display_name, college_id, graduation_year, created_at')
       .single();
 
     if (insertError) {
@@ -103,7 +109,7 @@ router.post('/login', async (req, res) => {
 
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, username, email, display_name, password_hash, college_id, leetcode_username, created_at')
+      .select('id, username, email, display_name, password_hash, college_id, graduation_year, leetcode_username, created_at')
       .eq('username', username.toLowerCase())
       .single();
 
@@ -142,7 +148,7 @@ router.get('/me', authenticate, async (req, res) => {
   try {
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, username, email, display_name, college_id, leetcode_username, created_at')
+      .select('id, username, email, display_name, college_id, graduation_year, leetcode_username, created_at')
       .eq('id', req.user.userId)
       .single();
 

@@ -9,7 +9,7 @@ export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [colleges, setColleges] = useState([]);
-  const [form, setForm] = useState({ username: '', email: '', password: '', college_id: '' });
+  const [form, setForm] = useState({ username: '', email: '', password: '', college_id: '', graduation_year: '' });
   const [collegeSearch, setCollegeSearch] = useState('');
   const [showCollegeDropdown, setShowCollegeDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -26,6 +26,7 @@ export default function Register() {
     if (!form.email?.includes('@')) e.email = 'Valid email required';
     if (!form.password || form.password.length < 6) e.password = 'Min 6 characters';
     if (!form.college_id) e.college_id = 'Please search and select a valid college from the list';
+    if (!form.graduation_year) e.graduation_year = 'Select your year';
     return e;
   };
 
@@ -180,6 +181,24 @@ export default function Register() {
             )}
           </div>
           {errors.college_id && <p style={{ fontSize: '0.75rem', color: 'var(--hard)', marginTop: '0.25rem' }}>{errors.college_id}</p>}
+        </div>
+
+        <div>
+          <label className="subheading" style={{ display: 'block', marginBottom: '0.4rem' }}>Year</label>
+          <select
+            className="input"
+            value={form.graduation_year}
+            onChange={e => setForm(f => ({ ...f, graduation_year: e.target.value }))}
+            style={{ borderColor: errors.graduation_year ? 'var(--hard)' : undefined, cursor: 'pointer' }}
+          >
+            <option value="">Select your year…</option>
+            <option value="1st Year">1st Year</option>
+            <option value="2nd Year">2nd Year</option>
+            <option value="3rd Year">3rd Year</option>
+            <option value="4th Year">4th Year</option>
+            <option value="Graduated">Graduated</option>
+          </select>
+          {errors.graduation_year && <p style={{ fontSize: '0.75rem', color: 'var(--hard)', marginTop: '0.25rem' }}>{errors.graduation_year}</p>}
         </div>
 
         <p style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', lineHeight: 1.6, marginTop: '0.25rem' }}>

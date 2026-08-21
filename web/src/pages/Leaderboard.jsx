@@ -22,6 +22,7 @@ export default function Leaderboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState('total_solved');
+  const [yearFilter, setYearFilter] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [dailyChallenge, setDailyChallenge] = useState(null);
   const [compareMode, setCompareMode] = useState(false);
@@ -35,7 +36,9 @@ export default function Leaderboard() {
 
   const fetchLeaderboard = () => {
     setLoading(true);
-    api.get(`/leaderboard/${slug}?sort=${sort}`)
+    let url = `/leaderboard/${slug}?sort=${sort}`;
+    if (yearFilter) url += `&year=${encodeURIComponent(yearFilter)}`;
+    api.get(url)
       .then(res => setData(res.data))
       .catch(() => toast.error('Failed to load leaderboard'))
       .finally(() => setLoading(false));
@@ -52,15 +55,16 @@ export default function Leaderboard() {
     const channel = supabase.channel(`lb-${slug}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'leetcode_stats' }, () => {
         setIsLive(true);
-        api.get(`/leaderboard/${slug}?sort=${sort}`).then(res => { setData(res.data); toast('Rankings updated'); }).catch(() => {});
+        const url = `/leaderboard/${slug}?sort=${sort}${yearFilter ? `&year=${encodeURIComponent(yearFilter)}` : ''}`;
+        api.get(url).then(res => { setData(res.data); toast('Rankings updated'); }).catch(() => {});
         setTimeout(() => setIsLive(false), 3000);
       })
       .subscribe();
     channelRef.current = channel;
     return () => supabase.removeChannel(channel);
-  }, [slug]);
+  }, [slug, sort, yearFilter]);
 
-  useEffect(() => { fetchLeaderboard(); }, [slug, sort]);
+  useEffect(() => { fetchLeaderboard(); }, [slug, sort, yearFilter]);
 
   const handleRowClick = (userId) => {
     if (compareMode) {
@@ -166,6 +170,19 @@ export default function Leaderboard() {
         </div>
 
         <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <select 
+            className="input" 
+            style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', height: 'auto', minHeight: '28px', width: 'auto' }}
+            value={yearFilter}
+            onChange={e => setYearFilter(e.target.value)}
+          >
+            <option value="">All Years</option>
+            <option value="1st Year">1st Year</option>
+            <option value="2nd Year">2nd Year</option>
+            <option value="3rd Year">3rd Year</option>
+            <option value="4th Year">4th Year</option>
+            <option value="Graduated">Graduated</option>
+          </select>
           <button onClick={() => { setCompareMode(m => !m); setSelected([]); }} className={`btn btn-sm ${compareMode ? 'btn-primary' : 'btn-secondary'}`}>
             {compareMode ? '✕ cancel' : '⇄ compare'}
           </button>
@@ -376,6 +393,11 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
                   {entry.user.display_name || entry.user.username}
                   {isMe && <span style={{ marginLeft: '0.35rem', fontSize: '0.68rem', color: 'var(--muted-foreground)', fontWeight: 400 }}>(you)</span>}
                   {isSel && <span style={{ marginLeft: '0.35rem', fontSize: '0.68rem', color: 'var(--muted-foreground)', fontWeight: 400 }}>✓</span>}
+                  {entry.user.graduation_year && entry.user.graduation_year !== 'Unknown' && (
+                    <span style={{ marginLeft: '0.35rem', fontSize: '0.65rem', padding: '0.1rem 0.35rem', background: 'var(--border)', borderRadius: '4px', color: 'var(--foreground-70)', fontWeight: 500 }}>
+                      {entry.user.graduation_year}
+                    </span>
+                  )}
                 </div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--foreground-40)' }}>@{entry.user.leetcode_username}</div>
               </div>
