@@ -41,16 +41,6 @@ export default function Navbar() {
       {/* Row 1: logo + title + theme + auth */}
       <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between', gap: '0.75rem' }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
-          {/* Box icon — mirrors the reference avatar */}
-          <div style={{
-            width: 24, height: 24, borderRadius: 6,
-            background: 'linear-gradient(to bottom, oklch(0.7 0.15 260), oklch(0.45 0.18 260))',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-            flexShrink: 0,
-          }}>
-            <span style={{ color: 'white', fontSize: '0.7rem', fontWeight: 700, lineHeight: 1 }}>L</span>
-          </div>
           <h1 style={{
             fontSize: '1.25rem',
             fontWeight: 600,
@@ -58,7 +48,7 @@ export default function Navbar() {
             color: 'var(--foreground)',
             lineHeight: 1,
           }}>
-            leetrank{' '}
+            Leeter{' '}
             <span style={{ color: 'var(--foreground-40)', fontWeight: 400 }}>—</span>{' '}
             <span style={{ fontWeight: 400, fontStyle: 'italic', color: 'var(--foreground-70)' }}>compete</span>
           </h1>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import api from '../lib/api';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
@@ -18,6 +18,7 @@ export default function Leaderboard() {
   const { slug } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState('total_solved');
@@ -27,6 +28,10 @@ export default function Leaderboard() {
   const [selected, setSelected] = useState([]);
   const [isLive, setIsLive] = useState(false);
   const channelRef = useRef(null);
+
+  // Read ?compare=id1,id2 from URL
+  const compareParam = new URLSearchParams(location.search).get('compare');
+  const compareIds = compareParam ? compareParam.split(',').filter(Boolean) : [];
 
   const fetchLeaderboard = () => {
     setLoading(true);
@@ -75,11 +80,16 @@ export default function Leaderboard() {
   const leaderboard = data?.leaderboard || [];
   const cs = data?.collegeStats;
 
+  // Resolve compare entries from loaded leaderboard
+  const compareEntries = compareIds.length === 2
+    ? compareIds.map(id => leaderboard.find(e => e.user.id === id)).filter(Boolean)
+    : [];
+
   return (
     <div className="container" style={{ paddingTop: '1.5rem', paddingBottom: '4rem' }}>
 
       {/* Back link */}
-      <Link to="/" style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', textDecoration: 'none', display: 'inline-block', marginBottom: '1.5rem' }}>
+      <Link to="/college" style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', textDecoration: 'none', display: 'inline-block', marginBottom: '1.5rem' }}>
         ← All Colleges
       </Link>
 
@@ -112,6 +122,18 @@ export default function Leaderboard() {
       )}
 
       <DottedSeparator style={{ margin: '1.25rem 0' }} />
+
+      {/* Head-to-head panel — shown when ?compare=id1,id2 is in URL */}
+      {compareEntries.length === 2 && (
+        <>
+          <HeadToHead
+            a={compareEntries[0]}
+            b={compareEntries[1]}
+            onClose={() => navigate(`/college/${slug}`)}
+          />
+          <DottedSeparator style={{ margin: '1.25rem 0' }} />
+        </>
+      )}
 
       {/* Daily challenge */}
       {dailyChallenge && (
@@ -171,6 +193,100 @@ export default function Leaderboard() {
       <LeaderboardTable leaderboard={leaderboard} loading={loading} onRowClick={handleRowClick} compareMode={compareMode} selected={selected} currentUserId={user?.id} />
 
       {showModal && <AddUsernameModal onClose={() => setShowModal(false)} onSuccess={() => { setShowModal(false); fetchLeaderboard(); }} />}
+    </div>
+  );
+}
+
+// ── Head-to-Head comparison panel ──────────────────────────────────────────
+function HeadToHead({ a, b, onClose }) {
+  const stats = [
+    { label: 'Total Solved', aVal: a.total_solved, bVal: b.total_solved, higher: 'better' },
+    { label: 'Easy', aVal: a.easy_solved, bVal: b.easy_solved, higher: 'better', color: 'var(--easy)' },
+    { label: 'Medium', aVal: a.medium_solved, bVal: b.medium_solved, higher: 'better', color: 'var(--medium)' },
+    { label: 'Hard', aVal: a.hard_solved, bVal: b.hard_solved, higher: 'better', color: 'var(--hard)' },
+    { label: 'Streak', aVal: a.streak, bVal: b.streak, higher: 'better' },
+    { label: 'Global Rank', aVal: a.ranking, bVal: b.ranking, higher: 'lower' },
+  ];
+
+  const winner = (aVal, bVal, higher) => {
+    if (aVal == null || bVal == null) return null;
+    if (higher === 'better') return aVal > bVal ? 'a' : bVal > aVal ? 'b' : 'tie';
+    return aVal < bVal ? 'a' : bVal < aVal ? 'b' : 'tie';
+  };
+
+  const aWins = stats.filter(s => winner(s.aVal, s.bVal, s.higher) === 'a').length;
+  const bWins = stats.filter(s => winner(s.aVal, s.bVal, s.higher) === 'b').length;
+
+  return (
+    <div style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)' }}>
+        <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--foreground)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+          Head-to-Head
+        </span>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)', fontSize: '1rem', lineHeight: 1, padding: '0 0.25rem' }}>
+          ✕
+        </button>
+      </div>
+
+      {/* Scoreline */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '1rem', padding: '1rem', alignItems: 'center', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: 36, height: 36, borderRadius: 8, background: `hsl(${(a.user.username?.charCodeAt(0) * 73) % 360},55%,52%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 700, color: 'white', margin: '0 auto 0.4rem' }}>
+            {a.user.username?.charAt(0)?.toUpperCase()}
+          </div>
+          <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--foreground)' }}>{a.user.display_name || a.user.username}</div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>@{a.user.leetcode_username}</div>
+        </div>
+
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--foreground)', letterSpacing: '-0.03em' }}>
+            {aWins} <span style={{ color: 'var(--muted-foreground)', fontWeight: 300 }}>·</span> {bWins}
+          </div>
+          <div style={{ fontSize: '0.65rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>score</div>
+        </div>
+
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: 36, height: 36, borderRadius: 8, background: `hsl(${(b.user.username?.charCodeAt(0) * 73) % 360},55%,52%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 700, color: 'white', margin: '0 auto 0.4rem' }}>
+            {b.user.username?.charAt(0)?.toUpperCase()}
+          </div>
+          <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--foreground)' }}>{b.user.display_name || b.user.username}</div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>@{b.user.leetcode_username}</div>
+        </div>
+      </div>
+
+      {/* Stat rows */}
+      <div>
+        {stats.map((s, i) => {
+          const w = winner(s.aVal, s.bVal, s.higher);
+          const aWin = w === 'a', bWin = w === 'b';
+          const max = Math.max(s.aVal || 0, s.bVal || 0, 1);
+          return (
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '0.5rem', padding: '0.6rem 1rem', borderBottom: i < stats.length - 1 ? '1px solid var(--border)' : 'none', alignItems: 'center' }}>
+              {/* A side */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                <span style={{ fontWeight: aWin ? 700 : 400, color: aWin ? 'var(--foreground)' : 'var(--foreground-70)', fontSize: '0.9rem' }}>
+                  {s.aVal ?? '—'}
+                </span>
+                <div style={{ width: Math.round(60 * (s.aVal || 0) / max), height: 4, borderRadius: 2, background: aWin ? 'var(--foreground)' : 'var(--border)', minWidth: 2, transition: 'width 0.4s' }} />
+              </div>
+
+              {/* Label */}
+              <span style={{ fontSize: '0.7rem', color: s.color || 'var(--muted-foreground)', textAlign: 'center', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                {s.label}
+              </span>
+
+              {/* B side */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{ width: Math.round(60 * (s.bVal || 0) / max), height: 4, borderRadius: 2, background: bWin ? 'var(--foreground)' : 'var(--border)', minWidth: 2, transition: 'width 0.4s' }} />
+                <span style={{ fontWeight: bWin ? 700 : 400, color: bWin ? 'var(--foreground)' : 'var(--foreground-70)', fontSize: '0.9rem' }}>
+                  {s.bVal ?? '—'}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -236,15 +352,16 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
               fontFamily: 'inherit',
               transition: 'background 0.1s',
               animation: `fadeInUp 0.25s ease ${i * 0.035}s both`,
+              outline: isSel ? '2px solid var(--foreground)' : 'none',
+              outlineOffset: '-2px',
+              borderRadius: isSel ? 'var(--radius)' : 0,
             }}
-            className="dark:hover:bg-white/5"
           >
-            <span style={{ fontSize: '0.85rem', fontWeight: medal ? 400 : 400, color: 'var(--muted-foreground)' }}>
+            <span style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
               {medal || i + 1}
             </span>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
-              {/* Initial box — from reference Box pattern */}
               <div style={{
                 width: 26, height: 26, borderRadius: 6, flexShrink: 0,
                 background: `hsl(${(entry.user.username?.charCodeAt(0) * 73) % 360},55%,52%)`,
@@ -254,9 +371,10 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
                 {entry.user.username?.charAt(0)?.toUpperCase()}
               </div>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: '0.875rem', fontWeight: 500, color: isMe ? 'var(--foreground)' : 'var(--foreground)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <div style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--foreground)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {entry.user.display_name || entry.user.username}
                   {isMe && <span style={{ marginLeft: '0.35rem', fontSize: '0.68rem', color: 'var(--muted-foreground)', fontWeight: 400 }}>(you)</span>}
+                  {isSel && <span style={{ marginLeft: '0.35rem', fontSize: '0.68rem', color: 'var(--muted-foreground)', fontWeight: 400 }}>✓</span>}
                 </div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--foreground-40)' }}>@{entry.user.leetcode_username}</div>
               </div>
@@ -275,3 +393,4 @@ function LeaderboardTable({ leaderboard, loading, onRowClick, compareMode, selec
     </div>
   );
 }
+

@@ -3,10 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import { DottedSeparator } from '../components/DottedUnderline';
 
+const PAGE_SIZE = 15;
+
 export default function Colleges() {
   const [colleges, setColleges] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [displayCount, setDisplayCount] = useState(PAGE_SIZE);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,15 +27,22 @@ export default function Colleges() {
   return (
     <div className="container" style={{ paddingTop: '1.5rem', paddingBottom: '4rem' }}>
       <div>
-        <h2 className="subheading" style={{ marginBottom: '1rem' }}>Choose your college</h2>
+        <h2 className="subheading" style={{ marginBottom: '0.5rem' }}>Choose your college</h2>
+        <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem', marginBottom: '1.25rem' }}>
+          {colleges.length} colleges available
+        </p>
 
-        <div style={{ marginBottom: '1.25rem' }}>
+        <div style={{ marginBottom: '1.5rem', position: 'relative' }}>
+          <span style={{
+            position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)',
+            color: 'var(--muted-foreground)', fontSize: '0.9rem', pointerEvents: 'none',
+          }}>🔍</span>
           <input
             className="input"
             placeholder="Search colleges or states..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{ maxWidth: 360 }}
+            onChange={e => { setSearch(e.target.value); setDisplayCount(PAGE_SIZE); }}
+            style={{ maxWidth: 400, paddingLeft: '2.25rem' }}
           />
         </div>
 
@@ -44,7 +54,7 @@ export default function Colleges() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {filtered.map((college, i) => (
+            {filtered.slice(0, search ? filtered.length : displayCount).map((college, i) => (
               <CollegeRow
                 key={college.id}
                 college={college}
@@ -52,10 +62,66 @@ export default function Colleges() {
                 onClick={() => navigate(`/college/${college.slug}`)}
               />
             ))}
+
             {filtered.length === 0 && (
               <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>
-                No colleges found for "{search}"
+                No colleges found for &ldquo;{search}&rdquo;
               </p>
+            )}
+
+            {!search && filtered.length > displayCount && (
+              <button
+                onClick={() => setDisplayCount(c => c + PAGE_SIZE)}
+                style={{
+                  alignSelf: 'flex-start',
+                  marginTop: '0.5rem',
+                  padding: '0.5rem 1.25rem',
+                  borderRadius: 8,
+                  border: '1px solid var(--border)',
+                  background: 'var(--card)',
+                  color: 'var(--foreground)',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  transition: 'background 0.15s, border-color 0.15s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--accent)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'var(--card)'}
+              >
+                Show {Math.min(PAGE_SIZE, filtered.length - displayCount)} more colleges
+                <span style={{
+                  marginLeft: '0.5rem',
+                  padding: '0.1rem 0.45rem',
+                  borderRadius: 99,
+                  background: 'var(--muted)',
+                  fontSize: '0.75rem',
+                  color: 'var(--muted-foreground)',
+                }}>
+                  {filtered.length - displayCount} left
+                </span>
+              </button>
+            )}
+
+            {!search && displayCount > PAGE_SIZE && filtered.length <= displayCount && filtered.length > PAGE_SIZE && (
+              <button
+                onClick={() => setDisplayCount(PAGE_SIZE)}
+                style={{
+                  alignSelf: 'flex-start',
+                  marginTop: '0.5rem',
+                  padding: '0.5rem 1.25rem',
+                  borderRadius: 8,
+                  border: '1px solid var(--border)',
+                  background: 'none',
+                  color: 'var(--muted-foreground)',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Show less
+              </button>
             )}
           </div>
         )}
@@ -63,6 +129,7 @@ export default function Colleges() {
     </div>
   );
 }
+
 
 function CollegeRow({ college, index, onClick }) {
   const hue = (college.name.charCodeAt(0) * 47) % 360;

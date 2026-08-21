@@ -7,10 +7,10 @@ export default function Footer() {
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', textAlign: 'center' }}>
         {/* Animated signature-style text — echoes the reference SVG signature */}
         <p style={{ fontSize: '0.8rem', color: 'var(--foreground-40)', maxWidth: 340, lineHeight: 1.6 }}>
-          leetrank — daily LeetCode rankings for your college. Data synced at 12 PM IST every day.
+          leeter.site — daily LeetCode rankings for your college. Data synced at 12 PM IST every day.
         </p>
         <p style={{ fontSize: '0.75rem', color: 'var(--foreground-40)' }}>
-          © 2025 LeetRank · Built for students, by students.
+          © 2026 Leeter · Built for students, by Mukund &amp; Kartik.
         </p>
       </div>
     </footer>
