@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap');
+
+/* ================================================================
+   LEETER ADMIN - Design System (mirrors web/src/index.css)
+   ================================================================ */
+
+html { min-width: 360px; scroll-behavior: smooth; }
+
+:root {
+  --font-display: 'Schibsted Grotesk', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'Fira Code', 'Consolas', monospace;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --foreground-40: oklch(0.145 0 0 / 40%);
+  --foreground-70: oklch(0.145 0 0 / 70%);
+  --muted-foreground: oklch(0.556 0 0);
+  --border: oklch(0.922 0 0);
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(0.97 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-fg: oklch(0.985 0 0);
+  --radius: 0.625rem;
+
+  --easy: #00b8a3;
+  --medium: #ffa116;
+  --hard: #ef4743;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --foreground-40: oklch(0.985 0 0 / 40%);
+  --foreground-70: oklch(0.985 0 0 / 70%);
+  --muted-foreground: oklch(0.708 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --surface: oklch(0.205 0 0);
+  --surface-2: oklch(0.269 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-fg: oklch(0.205 0 0);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; border-color: var(--border); }
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  transition: background 0.2s, color 0.2s;
+}
+
+.container { max-width: 64rem; margin: 0 auto; padding: 0 1.5rem; }
+
+.subheading {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--foreground-40);
+  font-weight: 400;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--border) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius);
+}
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem;
+  padding: 0.4rem 1rem; border-radius: var(--radius); font-size: 0.875rem;
+  font-weight: 500; font-family: var(--font-display); cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s; border: 1px solid transparent;
+  outline: none; text-decoration: none; white-space: nowrap;
+}
+.btn-primary { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
+.btn-primary:hover { opacity: 0.8; }
+.btn-secondary { background: transparent; color: var(--foreground); border-color: var(--border); }
+.btn-secondary:hover { background: var(--surface-2); }
+.btn-danger { background: var(--hard); color: #fff; border-color: var(--hard); }
+.btn-danger:hover { opacity: 0.85; }
+.btn-sm { padding: 0.3rem 0.75rem; font-size: 0.8rem; }
+.btn-lg { padding: 0.625rem 1.5rem; font-size: 0.9rem; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.input {
+  width: 100%; padding: 0.5rem 0.875rem; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--foreground); font-family: var(--font-display); font-size: 0.875rem;
+  outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+}
+.input:focus { border-color: var(--muted-foreground); box-shadow: 0 0 0 2px oklch(0.556 0 0 / 15%); }
+.input::placeholder { color: var(--muted-foreground); opacity: 0.6; }
+.dark .input { background: var(--surface-2); }
+
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); transition: border-color 0.15s;
+}
+
+.badge { display: inline-flex; align-items: center; gap: 0.2rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.72rem; font-weight: 500; }
+.badge-success { background: rgba(0,184,163,0.12); color: var(--easy); }
+.badge-warn    { background: rgba(255,161,22,0.12);  color: var(--medium); }
+.badge-danger  { background: rgba(239,71,67,0.12);   color: var(--hard); }
+.badge-outline { background: transparent; border: 1px solid var(--border); color: var(--muted-foreground); }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+table { width: 100%; border-collapse: collapse; }
+th { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--foreground-40); padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+td { padding: 0.625rem 0.75rem; font-size: 0.875rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:hover td { background: var(--surface-2); }

@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.js';
 import usersRoutes from './routes/users.js';
 import leaderboardRoutes from './routes/leaderboard.js';
 import collegesRoutes from './routes/colleges.js';
+import adminRoutes from './routes/admin.js';
 import { startCronJobs } from './services/cron.js';
 
 dotenv.config();
@@ -18,8 +19,10 @@ app.use(cors({
   origin: (origin, callback) => {
     const allowedOrigins = [
       'http://localhost:5173',
+      'http://localhost:5174',
       'https://leeter.site',
       'https://www.leeter.site',
+      'https://admin.leeter.site',
       process.env.FRONTEND_URL
     ];
     if (!origin || allowedOrigins.includes(origin)) {
@@ -47,6 +50,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/colleges', collegesRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
