@@ -23,6 +23,7 @@ export default function Leaderboard() {
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState('total_solved');
   const [yearFilter, setYearFilter] = useState('');
+  const [showYearDropdown, setShowYearDropdown] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [dailyChallenge, setDailyChallenge] = useState(null);
   const [compareMode, setCompareMode] = useState(false);
@@ -170,19 +171,49 @@ export default function Leaderboard() {
         </div>
 
         <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
-          <select 
-            className="input" 
-            style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', height: 'auto', minHeight: '28px', width: 'auto' }}
-            value={yearFilter}
-            onChange={e => setYearFilter(e.target.value)}
-          >
-            <option value="">All Years</option>
-            <option value="1st Year">1st Year</option>
-            <option value="2nd Year">2nd Year</option>
-            <option value="3rd Year">3rd Year</option>
-            <option value="4th Year">4th Year</option>
-            <option value="Graduated">Graduated</option>
-          </select>
+          <div style={{ position: 'relative' }}>
+            <button 
+              onClick={() => setShowYearDropdown(s => !s)}
+              className={`btn btn-sm ${yearFilter ? 'btn-primary' : 'btn-secondary'}`}
+              style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', height: 'auto', minHeight: '28px' }}
+            >
+              {yearFilter || 'All Years'} <span style={{ opacity: 0.5, marginLeft: 4 }}>▾</span>
+            </button>
+            {showYearDropdown && (
+              <>
+                <div 
+                  onClick={() => setShowYearDropdown(false)} 
+                  style={{ position: 'fixed', inset: 0, zIndex: 40 }} 
+                />
+                <div 
+                  style={{
+                    position: 'absolute', top: '100%', left: 0, marginTop: '0.25rem',
+                    background: 'var(--card)', border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius)', padding: '0.25rem', zIndex: 50,
+                    display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '120px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  {['', '1st Year', '2nd Year', '3rd Year', '4th Year', 'Graduated'].map(opt => (
+                    <button
+                      key={opt}
+                      onClick={() => { setYearFilter(opt); setShowYearDropdown(false); }}
+                      style={{
+                        background: yearFilter === opt ? 'var(--accent)' : 'transparent',
+                        color: 'var(--foreground)', border: 'none', padding: '0.4rem 0.5rem',
+                        textAlign: 'left', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem',
+                        transition: 'background 0.15s'
+                      }}
+                      onMouseEnter={e => { if(yearFilter !== opt) e.currentTarget.style.background = 'var(--accent)' }}
+                      onMouseLeave={e => { if(yearFilter !== opt) e.currentTarget.style.background = 'transparent' }}
+                    >
+                      {opt || 'All Years'}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
           <button onClick={() => { setCompareMode(m => !m); setSelected([]); }} className={`btn btn-sm ${compareMode ? 'btn-primary' : 'btn-secondary'}`}>
             {compareMode ? '✕ cancel' : '⇄ compare'}
           </button>
