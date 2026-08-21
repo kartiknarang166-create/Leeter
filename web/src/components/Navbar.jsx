@@ -60,7 +60,29 @@ export default function Navbar() {
         {/* Right: pullcord theme toggle + auth */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           
-          <div className="desktop-only" style={{ position: 'absolute', top: 0, right: '1.5rem', zIndex: 50 }} title={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}>
+          <div className="desktop-only" style={{ position: 'absolute', top: 0, right: '1.5rem', zIndex: 50, display: 'flex', alignItems: 'flex-start', gap: '0.25rem' }} title={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}>
+            {/* "pull the cord!" hint label */}
+            <div style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
+              marginTop: '2.2rem', marginRight: '0.1rem', pointerEvents: 'none', userSelect: 'none',
+            }}>
+              <span style={{
+                fontFamily: "'Caveat', cursive",
+                fontSize: '1rem',
+                color: 'var(--muted-foreground)',
+                lineHeight: 1.25,
+                opacity: 0.75,
+                display: 'block',
+                textAlign: 'right',
+              }}>
+                pull the<br />cord!
+              </span>
+              {/* Curved arrow pointing right toward the cord */}
+              <svg width="36" height="28" viewBox="0 0 36 28" fill="none" style={{ marginTop: '-2px', marginRight: '-4px', opacity: 0.6 }}>
+                <path d="M2 26 C8 20, 18 8, 30 4" stroke="var(--muted-foreground)" strokeWidth="1.6" strokeLinecap="round" fill="none"/>
+                <path d="M25 2 L30 4 L27 9" stroke="var(--muted-foreground)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+              </svg>
+            </div>
             <PullCord
               onPull={toggle}
               pulled={theme !== 'dark'}
