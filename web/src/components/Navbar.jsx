@@ -60,35 +60,46 @@ export default function Navbar() {
         {/* Right: pullcord theme toggle + auth */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           
-          <div className="desktop-only" style={{ position: 'absolute', top: 0, right: '1.5rem', zIndex: 50, display: 'flex', alignItems: 'flex-start', gap: '0.25rem' }} title={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}>
-            {/* "pull the cord!" hint label */}
-            <div style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
-              marginTop: '2.2rem', marginRight: '0.1rem', pointerEvents: 'none', userSelect: 'none',
-            }}>
-              <span style={{
-                fontFamily: "'Caveat', cursive",
-                fontSize: '1rem',
-                color: 'var(--muted-foreground)',
-                lineHeight: 1.25,
-                opacity: 0.75,
-                display: 'block',
-                textAlign: 'right',
-              }}>
-                pull the<br />cord!
-              </span>
-              {/* Curved arrow pointing right toward the cord */}
-              <svg width="36" height="28" viewBox="0 0 36 28" fill="none" style={{ marginTop: '-2px', marginRight: '-4px', opacity: 0.6 }}>
-                <path d="M2 26 C8 20, 18 8, 30 4" stroke="var(--muted-foreground)" strokeWidth="1.6" strokeLinecap="round" fill="none"/>
-                <path d="M25 2 L30 4 L27 9" stroke="var(--muted-foreground)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-              </svg>
-            </div>
+          <div className="desktop-only" style={{ position: 'absolute', top: 0, right: '1.5rem', zIndex: 50 }} title={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}>
             <PullCord
               onPull={toggle}
               pulled={theme !== 'dark'}
               ariaLabel={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
               config={{ gravity: 1250, damping: 0.94, iterations: 20, stretchMax: 26 }}
             />
+            {/* "pull the cord!" hint label — positioned to the left of the cord */}
+            <div style={{
+              position: 'absolute', top: '0.5rem', right: '100%',
+              display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
+              paddingRight: '0.1rem',
+              pointerEvents: 'none', userSelect: 'none',
+              whiteSpace: 'nowrap',
+            }}>
+              <span style={{
+                fontFamily: "'Caveat', cursive",
+                fontSize: '1.05rem',
+                fontWeight: 500,
+                color: theme === 'dark' ? '#736E63' : '#81818B',
+                lineHeight: 1.25,
+                textAlign: 'right',
+                display: 'block',
+              }}>
+                pull the<br />cord!
+              </span>
+              {/* Simple diagonal arrow pointing up-right toward the cord */}
+              <svg width="32" height="26" viewBox="0 0 32 26" fill="none" style={{ alignSelf: 'flex-end', marginTop: '2px' }}>
+                <path
+                  d="M4 22 Q14 16 26 5"
+                  stroke={theme === 'dark' ? '#736E63' : '#81818B'}
+                  strokeWidth="1.5" strokeLinecap="round" fill="none"
+                />
+                <path
+                  d="M26 5 L19 7 M26 5 L24 12"
+                  stroke={theme === 'dark' ? '#736E63' : '#81818B'}
+                  strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                />
+              </svg>
+            </div>
           </div>
 
           <div className="mobile-only">
