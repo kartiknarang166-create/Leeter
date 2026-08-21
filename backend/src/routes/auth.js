@@ -18,8 +18,9 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'All fields are required' });
     }
     
-    const validYears = ['1st Year', '2nd Year', '3rd Year', '4th Year', 'Graduated'];
-    if (!validYears.includes(graduation_year)) {
+    const currentYear = new Date().getFullYear();
+    const yearNum = parseInt(graduation_year, 10);
+    if (isNaN(yearNum) || yearNum < currentYear - 1 || yearNum > currentYear + 10) {
       return res.status(400).json({ error: 'Invalid graduation year selected' });
     }
     if (username.length < 3 || username.length > 30) {
