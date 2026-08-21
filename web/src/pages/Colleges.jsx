@@ -19,10 +19,11 @@ export default function Colleges() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = colleges.filter(c =>
-    c.name.toLowerCase().includes(search.toLowerCase()) ||
-    (c.state || '').toLowerCase().includes(search.toLowerCase())
-  );
+  const searchWords = search.toLowerCase().split(/\s+/).filter(Boolean);
+  const filtered = colleges.filter(c => {
+    const targetText = `${c.name} ${c.slug} ${c.state || ''}`.toLowerCase();
+    return searchWords.every(word => targetText.includes(word));
+  });
 
   return (
     <div className="container" style={{ paddingTop: '1.5rem', paddingBottom: '4rem' }}>

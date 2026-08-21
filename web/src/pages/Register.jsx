@@ -10,6 +10,8 @@ export default function Register() {
   const navigate = useNavigate();
   const [colleges, setColleges] = useState([]);
   const [form, setForm] = useState({ username: '', email: '', password: '', college_id: '' });
+  const [collegeSearch, setCollegeSearch] = useState('');
+  const [showCollegeDropdown, setShowCollegeDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -23,9 +25,15 @@ export default function Register() {
     if (!/^[a-zA-Z0-9_]+$/.test(form.username)) e.username = 'Letters, numbers, underscores only';
     if (!form.email?.includes('@')) e.email = 'Valid email required';
     if (!form.password || form.password.length < 6) e.password = 'Min 6 characters';
-    if (!form.college_id) e.college_id = 'Select your college';
+    if (!form.college_id) e.college_id = 'Please search and select a valid college from the list';
     return e;
   };
+
+  const searchWords = collegeSearch.toLowerCase().split(/\s+/).filter(Boolean);
+  const filteredColleges = colleges.filter(c => {
+    const targetText = `${c.name} ${c.slug} ${c.state || ''}`.toLowerCase();
+    return searchWords.every(word => targetText.includes(word));
+  });
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -109,16 +117,55 @@ export default function Register() {
 
         <div>
           <label className="subheading" style={{ display: 'block', marginBottom: '0.4rem' }}>College</label>
-          <select
-            className="input"
-            id="college_id"
-            value={form.college_id}
-            onChange={e => setForm(f => ({ ...f, college_id: e.target.value }))}
-            style={{ borderColor: errors.college_id ? 'var(--hard)' : undefined, cursor: 'pointer' }}
-          >
-            <option value="">Select your college…</option>
-            {colleges.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
+          <div style={{ position: 'relative' }}>
+            <input
+              className="input"
+              id="college_id"
+              placeholder="Type to search your college…"
+              value={collegeSearch}
+              onChange={e => {
+                setCollegeSearch(e.target.value);
+                setShowCollegeDropdown(true);
+                if (form.college_id) setForm(f => ({ ...f, college_id: '' }));
+              }}
+              onFocus={() => setShowCollegeDropdown(true)}
+              onBlur={() => setTimeout(() => setShowCollegeDropdown(false), 200)}
+              style={{ borderColor: errors.college_id ? 'var(--hard)' : undefined }}
+            />
+            {showCollegeDropdown && (
+              <div style={{
+                position: 'absolute', top: '100%', left: 0, right: 0, 
+                maxHeight: 220, overflowY: 'auto', background: 'var(--card)', 
+                border: '1px solid var(--border)', borderRadius: 'var(--radius)', 
+                zIndex: 10, marginTop: '0.25rem', padding: '0.25rem',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+              }}>
+                {filteredColleges.length > 0 ? filteredColleges.map(c => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => {
+                      setForm(f => ({ ...f, college_id: c.id }));
+                      setCollegeSearch(c.name);
+                      setShowCollegeDropdown(false);
+                    }}
+                    style={{
+                      display: 'block', width: '100%', padding: '0.5rem', 
+                      textAlign: 'left', background: form.college_id === c.id ? 'var(--accent)' : 'transparent', 
+                      border: 'none', cursor: 'pointer', borderRadius: '4px',
+                      color: 'var(--foreground)', fontSize: '0.875rem'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--accent)'}
+                    onMouseLeave={e => e.currentTarget.style.background = form.college_id === c.id ? 'var(--accent)' : 'transparent'}
+                  >
+                    {c.name}
+                  </button>
+                )) : (
+                  <div style={{ padding: '0.5rem', fontSize: '0.875rem', color: 'var(--muted-foreground)' }}>No colleges found</div>
+                )}
+              </div>
+            )}
+          </div>
           {errors.college_id && <p style={{ fontSize: '0.75rem', color: 'var(--hard)', marginTop: '0.25rem' }}>{errors.college_id}</p>}
         </div>
 
