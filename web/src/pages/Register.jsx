@@ -5,6 +5,12 @@ import api from '../lib/api';
 import { DottedSeparator } from '../components/DottedUnderline';
 import toast from 'react-hot-toast';
 
+// Generate graduation years: current year through current+6, auto-advances each year
+function getGraduationYears() {
+  const base = new Date().getFullYear();
+  return Array.from({ length: 7 }, (_, i) => base + i);
+}
+
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -14,21 +20,11 @@ export default function Register() {
   const [showCollegeDropdown, setShowCollegeDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const graduationYears = getGraduationYears();
 
   useEffect(() => {
     api.get('/colleges').then(res => setColleges(res.data.colleges || [])).catch(() => {});
   }, []);
-
-  const validate = () => {
-    const e = {};
-    if (!form.username || form.username.length < 3) e.username = 'Min 3 characters';
-    if (!/^[a-zA-Z0-9_]+$/.test(form.username)) e.username = 'Letters, numbers, underscores only';
-    if (!form.email?.includes('@')) e.email = 'Valid email required';
-    if (!form.password || form.password.length < 6) e.password = 'Min 6 characters';
-    if (!form.college_id) e.college_id = 'Please search and select a valid college from the list';
-    if (!form.graduation_year) e.graduation_year = 'Select your year';
-    return e;
-  };
 
   const searchWords = collegeSearch.toLowerCase().split(/\s+/).filter(Boolean);
   const filteredColleges = colleges
@@ -49,6 +45,17 @@ export default function Register() {
       return score(b) - score(a);
     });
 
+  const validate = () => {
+    const e = {};
+    if (!form.username || form.username.length < 3) e.username = 'Min 3 characters';
+    if (!/^[a-zA-Z0-9_]+$/.test(form.username)) e.username = 'Letters, numbers, underscores only';
+    if (!form.email?.includes('@')) e.email = 'Valid email required';
+    if (!form.password || form.password.length < 6) e.password = 'Min 6 characters';
+    if (!form.college_id) e.college_id = 'Please search and select a valid college from the list';
+    if (!form.graduation_year) e.graduation_year = 'Select your graduation year';
+    return e;
+  };
+
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -58,7 +65,7 @@ export default function Register() {
     setErrors({});
     setLoading(true);
     try {
-      await register(form);
+      await register({ ...form, graduation_year: parseInt(form.graduation_year, 10) });
       toast.success('Account created!');
       navigate('/');
     } catch (err) {
@@ -129,6 +136,7 @@ export default function Register() {
           {errors.password && <p style={{ fontSize: '0.75rem', color: 'var(--hard)', marginTop: '0.25rem' }}>{errors.password}</p>}
         </div>
 
+        {/* Searchable college dropdown (from Kartik) */}
         <div>
           <label className="subheading" style={{ display: 'block', marginBottom: '0.4rem' }}>College</label>
           <div style={{ position: 'relative' }}>
@@ -148,9 +156,9 @@ export default function Register() {
             />
             {showCollegeDropdown && (
               <div style={{
-                position: 'absolute', top: '100%', left: 0, right: 0, 
-                maxHeight: 220, overflowY: 'auto', background: 'var(--surface)', 
-                border: '1px solid var(--border)', borderRadius: 'var(--radius)', 
+                position: 'absolute', top: '100%', left: 0, right: 0,
+                maxHeight: 220, overflowY: 'auto', background: 'var(--surface)',
+                border: '1px solid var(--border)', borderRadius: 'var(--radius)',
                 zIndex: 10, marginTop: '0.25rem', padding: '0.25rem',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
               }}>
@@ -159,14 +167,14 @@ export default function Register() {
                     key={c.id}
                     type="button"
                     onMouseDown={(e) => {
-                      e.preventDefault(); // Prevent input from losing focus
+                      e.preventDefault();
                       setForm(f => ({ ...f, college_id: c.id }));
                       setCollegeSearch(c.name);
                       setShowCollegeDropdown(false);
                     }}
                     style={{
-                      display: 'block', width: '100%', padding: '0.5rem', 
-                      textAlign: 'left', background: form.college_id === c.id ? 'var(--surface-2)' : 'transparent', 
+                      display: 'block', width: '100%', padding: '0.5rem',
+                      textAlign: 'left', background: form.college_id === c.id ? 'var(--surface-2)' : 'transparent',
                       border: 'none', cursor: 'pointer', borderRadius: '4px',
                       color: 'var(--foreground)', fontSize: '0.875rem'
                     }}
@@ -184,20 +192,18 @@ export default function Register() {
           {errors.college_id && <p style={{ fontSize: '0.75rem', color: 'var(--hard)', marginTop: '0.25rem' }}>{errors.college_id}</p>}
         </div>
 
+        {/* Dynamic graduation year dropdown */}
         <div>
-          <label className="subheading" style={{ display: 'block', marginBottom: '0.4rem' }}>Year</label>
+          <label className="subheading" style={{ display: 'block', marginBottom: '0.4rem' }}>Graduation Year</label>
           <select
             className="input"
+            id="graduation_year"
             value={form.graduation_year}
             onChange={e => setForm(f => ({ ...f, graduation_year: e.target.value }))}
             style={{ borderColor: errors.graduation_year ? 'var(--hard)' : undefined, cursor: 'pointer' }}
           >
-            <option value="">Select your year…</option>
-            <option value="1st Year">1st Year</option>
-            <option value="2nd Year">2nd Year</option>
-            <option value="3rd Year">3rd Year</option>
-            <option value="4th Year">4th Year</option>
-            <option value="Graduated">Graduated</option>
+            <option value="">Select graduation year…</option>
+            {graduationYears.map(y => <option key={y} value={y}>{y}</option>)}
           </select>
           {errors.graduation_year && <p style={{ fontSize: '0.75rem', color: 'var(--hard)', marginTop: '0.25rem' }}>{errors.graduation_year}</p>}
         </div>

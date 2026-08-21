@@ -5,12 +5,15 @@
   "private": true,
   "workspaces": [
     "web",
-    "backend"
+    "backend",
+    "admin"
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace=web\" \"npm run dev --workspace=backend\"",
     "dev:web": "npm run dev --workspace=web",
     "dev:backend": "npm run dev --workspace=backend",
+    "dev:admin": "npm run dev --workspace=admin",
+    "dev:all": "concurrently \"npm run dev --workspace=web\" \"npm run dev --workspace=backend\" \"npm run dev --workspace=admin\"",
     "build": "npm run build --workspace=web",
     "install:all": "npm install"
   },
