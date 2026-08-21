@@ -177,7 +177,7 @@ export default function Leaderboard() {
               className={`btn btn-sm ${yearFilter ? 'btn-primary' : 'btn-secondary'}`}
               style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', height: 'auto', minHeight: '28px' }}
             >
-              {yearFilter || 'All Years'} <span style={{ opacity: 0.5, marginLeft: 4 }}>▾</span>
+              {yearFilter ? `Class of ${yearFilter}` : 'All Years'} <span style={{ opacity: 0.5, marginLeft: 4 }}>▾</span>
             </button>
             {showYearDropdown && (
               <>
@@ -194,20 +194,20 @@ export default function Leaderboard() {
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                   }}
                 >
-                  {['', '1st Year', '2nd Year', '3rd Year', '4th Year', 'Graduated'].map(opt => (
+                  {['', ...Array.from({ length: 8 }, (_, i) => (new Date().getFullYear() - 1) + i)].map(opt => (
                     <button
                       key={opt}
-                      onClick={() => { setYearFilter(opt); setShowYearDropdown(false); }}
+                      onClick={() => { setYearFilter(opt ? String(opt) : ''); setShowYearDropdown(false); }}
                       style={{
-                        background: yearFilter === opt ? 'var(--surface-2)' : 'transparent',
+                        background: yearFilter === String(opt) ? 'var(--surface-2)' : 'transparent',
                         color: 'var(--foreground)', border: 'none', padding: '0.4rem 0.5rem',
                         textAlign: 'left', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem',
                         transition: 'background 0.15s'
                       }}
-                      onMouseEnter={e => { if(yearFilter !== opt) e.currentTarget.style.background = 'var(--surface-2)' }}
-                      onMouseLeave={e => { if(yearFilter !== opt) e.currentTarget.style.background = 'transparent' }}
+                      onMouseEnter={e => { if(yearFilter !== String(opt)) e.currentTarget.style.background = 'var(--surface-2)' }}
+                      onMouseLeave={e => { if(yearFilter !== String(opt)) e.currentTarget.style.background = 'transparent' }}
                     >
-                      {opt || 'All Years'}
+                      {opt ? `Class of ${opt}` : 'All Years'}
                     </button>
                   ))}
                 </div>
