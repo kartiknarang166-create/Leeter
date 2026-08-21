@@ -10,7 +10,7 @@ export default function Footer() {
           leeter.site - daily LeetCode rankings for your college. Data synced at 12 PM IST every day.
         </p>
         <p style={{ fontSize: '0.75rem', color: 'var(--foreground-40)' }}>
-          © 2026 Leeter · Built for students, by Mukund Madhav Tiwari &amp; Kartik Narang ❤️.
+          © 2026 Leeter · Built for students, by Mukund Madhav Tiwari &amp; The Great Kartik Narang ❤️.
         </p>
       </div>
     </footer>
