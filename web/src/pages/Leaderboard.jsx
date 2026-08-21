@@ -188,7 +188,7 @@ export default function Leaderboard() {
                 <div 
                   style={{
                     position: 'absolute', top: '100%', left: 0, marginTop: '0.25rem',
-                    background: 'var(--card)', border: '1px solid var(--border)',
+                    background: 'var(--surface)', border: '1px solid var(--border)',
                     borderRadius: 'var(--radius)', padding: '0.25rem', zIndex: 50,
                     display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '120px',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
@@ -199,12 +199,12 @@ export default function Leaderboard() {
                       key={opt}
                       onClick={() => { setYearFilter(opt); setShowYearDropdown(false); }}
                       style={{
-                        background: yearFilter === opt ? 'var(--accent)' : 'transparent',
+                        background: yearFilter === opt ? 'var(--surface-2)' : 'transparent',
                         color: 'var(--foreground)', border: 'none', padding: '0.4rem 0.5rem',
                         textAlign: 'left', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem',
                         transition: 'background 0.15s'
                       }}
-                      onMouseEnter={e => { if(yearFilter !== opt) e.currentTarget.style.background = 'var(--accent)' }}
+                      onMouseEnter={e => { if(yearFilter !== opt) e.currentTarget.style.background = 'var(--surface-2)' }}
                       onMouseLeave={e => { if(yearFilter !== opt) e.currentTarget.style.background = 'transparent' }}
                     >
                       {opt || 'All Years'}

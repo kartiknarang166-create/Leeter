@@ -149,7 +149,7 @@ export default function Register() {
             {showCollegeDropdown && (
               <div style={{
                 position: 'absolute', top: '100%', left: 0, right: 0, 
-                maxHeight: 220, overflowY: 'auto', background: 'var(--card)', 
+                maxHeight: 220, overflowY: 'auto', background: 'var(--surface)', 
                 border: '1px solid var(--border)', borderRadius: 'var(--radius)', 
                 zIndex: 10, marginTop: '0.25rem', padding: '0.25rem',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
@@ -165,12 +165,12 @@ export default function Register() {
                     }}
                     style={{
                       display: 'block', width: '100%', padding: '0.5rem', 
-                      textAlign: 'left', background: form.college_id === c.id ? 'var(--accent)' : 'transparent', 
+                      textAlign: 'left', background: form.college_id === c.id ? 'var(--surface-2)' : 'transparent', 
                       border: 'none', cursor: 'pointer', borderRadius: '4px',
                       color: 'var(--foreground)', fontSize: '0.875rem'
                     }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'var(--accent)'}
-                    onMouseLeave={e => e.currentTarget.style.background = form.college_id === c.id ? 'var(--accent)' : 'transparent'}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-2)'}
+                    onMouseLeave={e => e.currentTarget.style.background = form.college_id === c.id ? 'var(--surface-2)' : 'transparent'}
                   >
                     {c.name}
                   </button>
