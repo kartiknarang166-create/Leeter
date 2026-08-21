@@ -238,7 +238,33 @@ export default function Leaderboard() {
       )}
 
       {/* Table */}
-      <LeaderboardTable leaderboard={leaderboard} loading={loading} onRowClick={handleRowClick} compareMode={compareMode} selected={selected} currentUserId={user?.id} />
+      <div style={{ position: 'relative' }}>
+        <div style={{ filter: !user && !loading ? 'blur(8px)' : 'none', pointerEvents: !user ? 'none' : 'auto', userSelect: !user ? 'none' : 'auto' }}>
+          <LeaderboardTable leaderboard={leaderboard} loading={loading} onRowClick={handleRowClick} compareMode={compareMode} selected={selected} currentUserId={user?.id} />
+        </div>
+        
+        {!user && !loading && (
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            zIndex: 10, background: 'rgba(0,0,0,0.05)', borderRadius: 'var(--radius)',
+            padding: '2rem'
+          }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--foreground)', marginBottom: '1rem', opacity: 0.8 }}>
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0110 0v4"></path>
+            </svg>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--foreground)', marginBottom: '0.5rem' }}>Sign in to view Leaderboard</h3>
+            <p style={{ color: 'var(--muted-foreground)', fontSize: '0.9rem', marginBottom: '1.5rem', textAlign: 'center', maxWidth: '300px' }}>
+              Sign up or login first to view the global leaderboard and track your college mates' progress.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <Link to="/register" className="btn btn-primary" style={{ pointerEvents: 'auto' }}>Sign up</Link>
+              <Link to="/login" className="btn btn-secondary" style={{ pointerEvents: 'auto' }}>Login</Link>
+            </div>
+          </div>
+        )}
+      </div>
 
       {showModal && <AddUsernameModal onClose={() => setShowModal(false)} onSuccess={() => { setShowModal(false); fetchLeaderboard(); }} />}
     </div>
