@@ -88,7 +88,8 @@ INSERT INTO colleges (name, slug, state, type) VALUES
   ('Amrita Vishwa Vidyapeetham', 'amrita', 'Tamil Nadu', 'Deemed'),
   ('KJ Somaiya College of Engineering', 'kjsomaiya', 'Maharashtra', 'Autonomous'),
   ('College of Engineering Pune', 'coep', 'Maharashtra', 'Autonomous'),
-  ('Maharaja Agrasen Institute of Technology', 'mait-delhi', 'Delhi', 'Private')
+  ('Maharaja Agrasen Institute of Technology', 'mait-delhi', 'Delhi', 'Private'),
+  ('UPES Dehradun', 'upes-dehradun', 'Uttarakhand', 'Private')
 ON CONFLICT (slug) DO NOTHING;
 
 -- ============================================================
