@@ -72,9 +72,11 @@ export default function Navbar() {
 
           {/* "pull the cord!" hint — fixed, aligned to the left of the bob */}
           <div className="desktop-only" style={{
-            position: 'fixed', top: '138px', right: '12rem', zIndex: 49,
+            position: 'fixed', top: '148px', right: 'calc(12rem - 15px)', zIndex: 49,
             display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
             pointerEvents: 'none', userSelect: 'none', whiteSpace: 'nowrap',
+            opacity: 0,
+            animation: 'pullCordHintFade 0.7s ease 1.5s forwards',
           }}>
             <span style={{
               fontFamily: "'Caveat', cursive",
