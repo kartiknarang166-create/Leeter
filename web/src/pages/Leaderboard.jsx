@@ -286,6 +286,46 @@ export default function Leaderboard() {
             </div>
           </div>
         </div>
+      ) : user && !user.leetcode_username ? (
+        /* Logged in but LeetCode not linked — show top 5, blur rest */
+        <div style={{ position: 'relative', borderRadius: 'var(--radius)', overflow: 'hidden', border: '1px solid var(--border)' }}>
+          {/* Clipped table — only top 5 rows visible */}
+          <div style={{ maxHeight: '370px', overflow: 'hidden' }}>
+            <LeaderboardTable leaderboard={leaderboard} loading={loading} onRowClick={() => {}} compareMode={false} selected={[]} currentUserId={user?.id} />
+          </div>
+
+          {/* Gradient fade + lock overlay anchored to bottom */}
+          <div style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0,
+            background: 'linear-gradient(to bottom, transparent 0%, var(--background) 55%)',
+            paddingTop: '5rem',
+            paddingBottom: '2rem',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem',
+          }}>
+            {/* Lock icon */}
+            <div style={{
+              width: 56, height: 56, borderRadius: '50%',
+              background: 'var(--surface-2)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: '1px solid var(--border)',
+            }}>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--foreground)' }}>
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0110 0v4" />
+              </svg>
+            </div>
+            <p style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--foreground)', textAlign: 'center', margin: 0 }}>
+              Link your LeetCode to see the full rankings
+            </p>
+            <button
+              onClick={() => setShowModal(true)}
+              className="btn btn-primary btn-sm"
+              style={{ marginTop: '0.25rem' }}
+            >
+              Link LeetCode →
+            </button>
+          </div>
+        </div>
       ) : (
         <LeaderboardTable leaderboard={leaderboard} loading={loading} onRowClick={handleRowClick} compareMode={compareMode} selected={selected} currentUserId={user?.id} />
       )}
