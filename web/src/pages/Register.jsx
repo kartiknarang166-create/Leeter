@@ -24,15 +24,12 @@ export default function Register() {
   const graduationYears = getGraduationYears();
 
   useEffect(() => {
-    // Only fetch admin-added custom colleges (tiny payload, merges on top of static list)
+    // Fetch full college list from API (has real UUIDs needed by backend).
+    // Static list shows instantly while this loads, then gets replaced.
     api.get('/colleges').then(res => {
       const apiColleges = res.data.colleges || [];
-      const staticSlugs = new Set(STATIC_COLLEGES.map(c => c.slug));
-      const customColleges = apiColleges.filter(c => !staticSlugs.has(c.slug));
-      if (customColleges.length > 0) {
-        setColleges(prev => [...customColleges, ...prev]);
-      }
-    }).catch(() => {}); // fail silently — static list still works
+      if (apiColleges.length > 0) setColleges(apiColleges);
+    }).catch(() => {}); // fail silently — static list still shown as fallback
   }, []);
 
   const searchWords = collegeSearch.toLowerCase().split(/\s+/).filter(Boolean);
