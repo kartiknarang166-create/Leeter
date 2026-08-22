@@ -15,7 +15,7 @@ export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [colleges, setColleges] = useState([]);
-  const [form, setForm] = useState({ username: '', email: '', password: '', college_id: '', graduation_year: '' });
+  const [form, setForm] = useState({ username: '', email: '', password: '', college_id: '', graduation_year: '', leetcode_username: '' });
   const [collegeSearch, setCollegeSearch] = useState('');
   const [showCollegeDropdown, setShowCollegeDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -65,8 +65,20 @@ export default function Register() {
     setErrors({});
     setLoading(true);
     try {
+      // 1. Register account
       await register({ ...form, graduation_year: parseInt(form.graduation_year, 10) });
       toast.success('Account created!');
+
+      // 2. Optionally link LeetCode username right after registration
+      if (form.leetcode_username.trim()) {
+        try {
+          await api.post('/users/leetcode-username', { leetcode_username: form.leetcode_username.trim() });
+          toast.success(`LeetCode account "${form.leetcode_username.trim()}" linked!`);
+        } catch (lcErr) {
+          toast.error(lcErr.response?.data?.error || 'Could not link LeetCode account. You can link it later from the leaderboard.');
+        }
+      }
+
       navigate('/');
     } catch (err) {
       toast.error(err.response?.data?.error || 'Registration failed');
@@ -208,9 +220,21 @@ export default function Register() {
           {errors.graduation_year && <p style={{ fontSize: '0.75rem', color: 'var(--hard)', marginTop: '0.25rem' }}>{errors.graduation_year}</p>}
         </div>
 
-        <p style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', lineHeight: 1.6, marginTop: '0.25rem' }}>
-          After signing up, link your LeetCode username from the leaderboard page. You can only link one account - it cannot be changed.
-        </p>
+        {/* Optional LeetCode username */}
+        <div>
+          <label className="subheading" style={{ display: 'block', marginBottom: '0.4rem' }}>LeetCode Username <span style={{ color: 'var(--muted-foreground)', fontWeight: 400, textTransform: 'none', fontSize: '0.7rem' }}>(optional)</span></label>
+          <input
+            className="input"
+            id="leetcode_username"
+            type="text"
+            placeholder="your_leetcode_handle"
+            value={form.leetcode_username}
+            onChange={e => setForm(f => ({ ...f, leetcode_username: e.target.value }))}
+          />
+          <p style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', marginTop: '0.35rem', lineHeight: 1.5 }}>
+            🔒 Not required — you can also link it later from the leaderboard page.
+          </p>
+        </div>
 
         <button type="submit" className="btn btn-primary" disabled={loading}>
           {loading ? 'Creating account…' : 'Create Account →'}
