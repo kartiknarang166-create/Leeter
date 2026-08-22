@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
 
-const BLANK = { name: '', slug: '', city: '', state: '', logo_url: '' };
+const BLANK = { name: '', slug: '', state: '', type: 'Engineering', logo_url: '' };
 
 export default function Colleges() {
   const [colleges, setColleges] = useState([]);
@@ -23,7 +23,7 @@ export default function Colleges() {
 
   const startEdit = (college) => {
     setEditing(college.id);
-    setForm({ name: college.name, slug: college.slug, city: college.city || '', state: college.state || '', logo_url: college.logo_url || '' });
+    setForm({ name: college.name, slug: college.slug, state: college.state || '', type: college.type || 'Engineering', logo_url: college.logo_url || '' });
   };
 
   const startNew = () => {
@@ -84,12 +84,24 @@ export default function Colleges() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
-              <label className="subheading" style={{ display: 'block', marginBottom: '0.35rem' }}>City</label>
-              <input className="input" value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} placeholder="Delhi" />
+              <label className="subheading" style={{ display: 'block', marginBottom: '0.35rem' }}>State</label>
+              <input className="input" value={form.state} onChange={e => setForm(f => ({ ...f, state: e.target.value }))} placeholder="Maharashtra" />
             </div>
             <div>
-              <label className="subheading" style={{ display: 'block', marginBottom: '0.35rem' }}>State</label>
-              <input className="input" value={form.state} onChange={e => setForm(f => ({ ...f, state: e.target.value }))} placeholder="Delhi" />
+              <label className="subheading" style={{ display: 'block', marginBottom: '0.35rem' }}>Type</label>
+              <select className="input" value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}>
+                <option value="Engineering">Engineering</option>
+                <option value="IIT">IIT</option>
+                <option value="NIT">NIT</option>
+                <option value="BITS">BITS</option>
+                <option value="IIIT">IIIT</option>
+                <option value="Deemed">Deemed</option>
+                <option value="State">State</option>
+                <option value="Autonomous">Autonomous</option>
+                <option value="Private">Private</option>
+                <option value="Medical">Medical</option>
+                <option value="Arts">Arts</option>
+              </select>
             </div>
           </div>
           <div>

@@ -166,12 +166,12 @@ router.get('/colleges', async (req, res) => {
 // POST /api/admin/colleges — create
 router.post('/colleges', async (req, res) => {
   try {
-    const { name, slug, logo_url, city, state } = req.body;
+    const { name, slug, logo_url, state, type } = req.body;
     if (!name || !slug) return res.status(400).json({ error: 'name and slug are required' });
 
     const { data, error } = await supabase
       .from('colleges')
-      .insert({ name, slug, logo_url, city, state })
+      .insert({ name, slug, logo_url, state, type })
       .select()
       .single();
 
@@ -185,7 +185,7 @@ router.post('/colleges', async (req, res) => {
 // PATCH /api/admin/colleges/:id — update
 router.patch('/colleges/:id', async (req, res) => {
   try {
-    const allowed = ['name', 'slug', 'logo_url', 'city', 'state'];
+    const allowed = ['name', 'slug', 'logo_url', 'state', 'type'];
     const updates = {};
     for (const key of allowed) {
       if (req.body[key] !== undefined) updates[key] = req.body[key];

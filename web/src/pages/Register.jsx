@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
 import { DottedSeparator } from '../components/DottedUnderline';
 import toast from 'react-hot-toast';
+import STATIC_COLLEGES from '../data/colleges';
 
 // Generate graduation years: current year through current+6, auto-advances each year
 function getGraduationYears() {
@@ -14,7 +15,7 @@ function getGraduationYears() {
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
-  const [colleges, setColleges] = useState([]);
+  const [colleges, setColleges] = useState(STATIC_COLLEGES); // load instantly from static bundle
   const [form, setForm] = useState({ username: '', email: '', password: '', college_id: '', graduation_year: '', leetcode_username: '' });
   const [collegeSearch, setCollegeSearch] = useState('');
   const [showCollegeDropdown, setShowCollegeDropdown] = useState(false);
@@ -23,7 +24,15 @@ export default function Register() {
   const graduationYears = getGraduationYears();
 
   useEffect(() => {
-    api.get('/colleges').then(res => setColleges(res.data.colleges || [])).catch(() => {});
+    // Only fetch admin-added custom colleges (tiny payload, merges on top of static list)
+    api.get('/colleges').then(res => {
+      const apiColleges = res.data.colleges || [];
+      const staticSlugs = new Set(STATIC_COLLEGES.map(c => c.slug));
+      const customColleges = apiColleges.filter(c => !staticSlugs.has(c.slug));
+      if (customColleges.length > 0) {
+        setColleges(prev => [...customColleges, ...prev]);
+      }
+    }).catch(() => {}); // fail silently — static list still works
   }, []);
 
   const searchWords = collegeSearch.toLowerCase().split(/\s+/).filter(Boolean);
