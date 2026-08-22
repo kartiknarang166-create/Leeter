@@ -104,7 +104,7 @@ export default function Users() {
                     {u.leetcode_stats?.total_solved ?? '—'}
                   </td>
                   <td style={{ color: 'var(--muted-foreground)', fontSize: '0.78rem' }}>
-                    {new Date(u.created_at).toLocaleDateString('en-IN')}
+                    {new Date(u.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', hour12: true })}
                   </td>
                   <td onClick={e => e.stopPropagation()}>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>

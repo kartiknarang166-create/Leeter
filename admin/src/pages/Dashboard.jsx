@@ -80,8 +80,8 @@ export default function Dashboard() {
                     ? <span className="badge badge-success">{u.leetcode_username}</span>
                     : <span className="badge badge-outline">not linked</span>}
                 </td>
-                <td style={{ color: 'var(--muted-foreground)', fontSize: '0.8rem' }}>
-                  {new Date(u.created_at).toLocaleDateString('en-IN')}
+                <td style={{ color: 'var(--muted-foreground)', fontSize: '0.78rem' }}>
+                  {new Date(u.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', hour12: true })}
                 </td>
               </tr>
             ))}
