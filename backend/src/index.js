@@ -35,12 +35,13 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Rate limiting
+// Rate limiting — generous global limit; static/public endpoints are exempted
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
+  max: 300,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.path.startsWith('/api/colleges') || req.path === '/api/health',
   message: { error: 'Too many requests, please try again later.' }
 });
 app.use('/api/', limiter);
