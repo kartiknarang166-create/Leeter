@@ -24,12 +24,19 @@ export default function Register() {
   const graduationYears = getGraduationYears();
 
   useEffect(() => {
-    // Fetch full college list from API (has real UUIDs needed by backend).
-    // Static list shows instantly while this loads, then gets replaced.
+    // Merge API colleges (which have real UUIDs) with static list.
+    // API version takes priority per slug; static ones fill the rest for browsing.
     api.get('/colleges').then(res => {
       const apiColleges = res.data.colleges || [];
-      if (apiColleges.length > 0) setColleges(apiColleges);
-    }).catch(() => {}); // fail silently — static list still shown as fallback
+      if (apiColleges.length === 0) return;
+      const apiBySlug = new Map(apiColleges.map(c => [c.slug, c]));
+      // For each static college, use API version if it exists (has UUID), else keep static
+      const merged = STATIC_COLLEGES.map(c => apiBySlug.get(c.slug) || c);
+      // Prepend any admin-added colleges not in static list
+      const staticSlugs = new Set(STATIC_COLLEGES.map(c => c.slug));
+      const extras = apiColleges.filter(c => !staticSlugs.has(c.slug));
+      setColleges([...extras, ...merged]);
+    }).catch(() => {}); // fail silently — full static list still works for browsing
   }, []);
 
   const searchWords = collegeSearch.toLowerCase().split(/\s+/).filter(Boolean);
