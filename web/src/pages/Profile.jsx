@@ -55,6 +55,9 @@ export default function Profile() {
             <h1 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--foreground)', letterSpacing: '-0.02em' }}>
               {user.display_name || user.username}
             </h1>
+            {user.graduation_year && user.graduation_year !== 'Unknown' && (
+              <PassoutBadge year={user.graduation_year} name={user.display_name || user.username} />
+            )}
             {collegeRank === 1 && <span className="badge badge-outline">👑 #1 in college</span>}
             {isMe && <span className="badge badge-outline">you</span>}
           </div>
@@ -169,4 +172,61 @@ function getBadges(stats) {
   if (stats.streak >= 7) b.push({ id: 'on-fire', emoji: '🔥', name: 'On Fire', desc: '7-day streak' });
   if (stats.total_active_days >= 100) b.push({ id: 'dedicated', emoji: '🏆', name: 'Dedicated', desc: '100 active days' });
   return b;
+}
+
+function PassoutBadge({ year, name }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <span
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
+    >
+      <span style={{
+        fontSize: '0.72rem',
+        fontWeight: 600,
+        padding: '0.15rem 0.45rem',
+        borderRadius: '5px',
+        background: 'var(--surface-2)',
+        border: '1px solid var(--border)',
+        color: 'var(--foreground-70)',
+        letterSpacing: '0.02em',
+        cursor: 'default',
+        userSelect: 'none',
+        transition: 'background 0.15s, color 0.15s',
+        ...(hovered ? { background: 'var(--border)', color: 'var(--foreground)' } : {}),
+      }}>
+        {year}
+      </span>
+      {hovered && (
+        <span style={{
+          position: 'absolute',
+          bottom: 'calc(100% + 6px)',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderRadius: '6px',
+          padding: '0.35rem 0.65rem',
+          fontSize: '0.72rem',
+          color: 'var(--foreground)',
+          whiteSpace: 'nowrap',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          zIndex: 99,
+          pointerEvents: 'none',
+          lineHeight: 1.5,
+        }}>
+          {name} will pass out in {year}
+          <span style={{
+            position: 'absolute',
+            top: '100%', left: '50%',
+            transform: 'translateX(-50%)',
+            border: '5px solid transparent',
+            borderTopColor: 'var(--border)',
+            width: 0, height: 0,
+          }} />
+        </span>
+      )}
+    </span>
+  );
 }

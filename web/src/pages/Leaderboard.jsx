@@ -177,7 +177,11 @@ export default function Leaderboard() {
               className={`btn btn-sm ${yearFilter ? 'btn-primary' : 'btn-secondary'}`}
               style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', height: 'auto', minHeight: '28px' }}
             >
-              {yearFilter ? `Passout Year: ${yearFilter}` : 'Passout Year: All Years'} <span style={{ opacity: 0.5, marginLeft: 4 }}>▾</span>
+              {yearFilter ? (
+                <>Passout Year: <span style={{ color: 'var(--medium)', fontWeight: 700 }}>{yearFilter}</span></>
+              ) : (
+                <>Passout Year: <span style={{ color: 'var(--medium)', fontWeight: 700 }}>All Years</span></>
+              )} <span style={{ opacity: 0.5, marginLeft: 4 }}>▾</span>
             </button>
             {showYearDropdown && (
               <>
