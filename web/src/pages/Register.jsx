@@ -59,7 +59,7 @@ function SuggestCollegeForm({ onClose, onAdded }) {
       ) : (
         <>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-            <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--foreground)' }}>Suggest a college</p>
+            <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--foreground)' }}>Add your college</p>
             <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)', fontSize: '1rem', lineHeight: 1 }}>✕</button>
           </div>
           <form onSubmit={handleSuggest} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -85,7 +85,7 @@ function SuggestCollegeForm({ onClose, onAdded }) {
               disabled={submitting}
               style={{ fontSize: '0.8rem', padding: '0.4rem 1rem', alignSelf: 'flex-start' }}
             >
-              {submitting ? 'Submitting…' : 'Submit for review →'}
+              {submitting ? 'Adding…' : 'Add College →'}
             </button>
           </form>
         </>

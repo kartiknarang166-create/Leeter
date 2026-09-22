@@ -67,38 +67,46 @@ router.post('/suggest', async (req, res) => {
     if (!name || !name.trim()) return res.status(400).json({ error: 'College name is required' });
 
     const trimmedName = name.trim();
+    const trimmedState = (state || '').trim() || null;
 
     // Auto-generate a URL-safe slug from the name
-    let slug = trimmedName
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
+    const makeSlug = (str) =>
+      str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-    // Insert directly into colleges table — immediately live
-    const { data, error } = await supabase
-      .from('colleges')
-      .insert({
+    const tryInsert = async (slug, includeSource = true) => {
+      const payload = {
         name: trimmedName,
         slug,
-        state: (state || '').trim() || null,
+        state: trimmedState,
         type: 'Engineering',
-        source: 'user',
-      })
-      .select()
-      .single();
+        ...(includeSource ? { source: 'user' } : {}),
+      };
+      return supabase.from('colleges').insert(payload).select().single();
+    };
+
+    let slug = makeSlug(trimmedName);
+
+    // First attempt — with source column (requires migration to be run)
+    let { data, error } = await tryInsert(slug, true);
+
+    // If the source column doesn't exist yet, retry without it
+    if (error && (error.message?.includes('source') || error.code === 'PGRST204' || error.code === '42703')) {
+      console.warn('[/colleges/suggest] source column not found, retrying without it. Run add_college_source_column.sql migration.');
+      ({ data, error } = await tryInsert(slug, false));
+    }
+
+    // If slug conflict, retry with a random suffix
+    if (error && error.code === '23505') {
+      slug = `${slug}-${Math.random().toString(36).slice(2, 6)}`;
+      ({ data, error } = await tryInsert(slug, true));
+      // If source column still missing, retry without it
+      if (error && (error.message?.includes('source') || error.code === '42703')) {
+        ({ data, error } = await tryInsert(slug, false));
+      }
+    }
 
     if (error) {
-      if (error.code === '23505') {
-        // Slug conflict — append a short random suffix and retry
-        slug = `${slug}-${Math.random().toString(36).slice(2, 6)}`;
-        const { data: data2, error: error2 } = await supabase
-          .from('colleges')
-          .insert({ name: trimmedName, slug, state: (state || '').trim() || null, type: 'Engineering', source: 'user' })
-          .select()
-          .single();
-        if (error2) return res.status(500).json({ error: error2.message });
-        return res.status(201).json({ college: data2 });
-      }
+      console.error('[/colleges/suggest] Insert failed:', error);
       return res.status(500).json({ error: error.message });
     }
 
@@ -110,4 +118,5 @@ router.post('/suggest', async (req, res) => {
 });
 
 export default router;
+
 
