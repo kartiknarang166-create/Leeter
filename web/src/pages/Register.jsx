@@ -62,13 +62,14 @@ function SuggestCollegeForm({ onClose, onAdded }) {
             <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--foreground)' }}>Add your college</p>
             <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)', fontSize: '1rem', lineHeight: 1 }}>✕</button>
           </div>
-          <form onSubmit={handleSuggest} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <input
               className="input"
               id="suggest_college_name"
               placeholder="College full name *"
               value={suggestForm.name}
               onChange={e => setSuggestForm(f => ({ ...f, name: e.target.value }))}
+              onKeyDown={e => e.key === 'Enter' && handleSuggest(e)}
               style={{ fontSize: '0.85rem', padding: '0.4rem 0.75rem' }}
             />
             <input
@@ -77,17 +78,19 @@ function SuggestCollegeForm({ onClose, onAdded }) {
               placeholder="State (e.g. Maharashtra)"
               value={suggestForm.state}
               onChange={e => setSuggestForm(f => ({ ...f, state: e.target.value }))}
+              onKeyDown={e => e.key === 'Enter' && handleSuggest(e)}
               style={{ fontSize: '0.85rem', padding: '0.4rem 0.75rem' }}
             />
             <button
-              type="submit"
+              type="button"
+              onClick={handleSuggest}
               className="btn btn-primary"
               disabled={submitting}
               style={{ fontSize: '0.8rem', padding: '0.4rem 1rem', alignSelf: 'flex-start' }}
             >
               {submitting ? 'Adding…' : 'Add College →'}
             </button>
-          </form>
+          </div>
         </>
       )}
     </div>
