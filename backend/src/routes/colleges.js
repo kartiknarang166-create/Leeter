@@ -59,4 +59,36 @@ router.get('/:slug', async (req, res) => {
   }
 });
 
+
+// POST /api/colleges/suggest — Submit a missing college for admin review
+router.post('/suggest', async (req, res) => {
+  try {
+    const { name, state } = req.body;
+    if (!name || !name.trim()) return res.status(400).json({ error: 'College name is required' });
+
+    const { data, error } = await supabase
+      .from('college_suggestions')
+      .insert({
+        name: name.trim(),
+        state: (state || '').trim() || null,
+        status: 'pending',
+      })
+      .select()
+      .single();
+
+    if (error) {
+      // Handle duplicate suggestion gracefully
+      if (error.code === '23505') {
+        return res.status(409).json({ error: 'This college has already been suggested and is pending review.' });
+      }
+      return res.status(500).json({ error: error.message });
+    }
+
+    res.status(201).json({ suggestion: data });
+  } catch (err) {
+    console.error('College suggest error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;

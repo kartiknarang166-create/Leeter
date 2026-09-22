@@ -6,6 +6,92 @@ import { DottedSeparator } from '../components/DottedUnderline';
 import toast from 'react-hot-toast';
 import STATIC_COLLEGES from '../data/colleges';
 
+// Inline form for suggesting a missing college
+function SuggestCollegeForm({ onClose }) {
+  const [suggestForm, setSuggestForm] = useState({ name: '', state: '' });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSuggest = async (e) => {
+    e.preventDefault();
+    if (!suggestForm.name.trim()) return toast.error('College name is required');
+    setSubmitting(true);
+    try {
+      await api.post('/colleges/suggest', {
+        name: suggestForm.name.trim(),
+        state: suggestForm.state.trim(),
+      });
+      setSubmitted(true);
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Could not submit suggestion');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div style={{
+      marginTop: '0.75rem',
+      padding: '1rem',
+      background: 'var(--surface-2)',
+      border: '1px solid var(--border)',
+      borderRadius: 'var(--radius)',
+      animation: 'fadeInUp 0.2s ease both',
+    }}>
+      {submitted ? (
+        <div style={{ textAlign: 'center', padding: '0.5rem 0' }}>
+          <p style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>🎉</p>
+          <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--foreground)' }}>Thanks! College submitted.</p>
+          <p style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', marginTop: '0.2rem' }}>
+            Our team will review and add it shortly.
+          </p>
+          <button
+            type="button"
+            onClick={onClose}
+            className="btn btn-secondary btn-sm"
+            style={{ marginTop: '0.75rem' }}
+          >
+            Close
+          </button>
+        </div>
+      ) : (
+        <>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+            <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--foreground)' }}>Suggest a college</p>
+            <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)', fontSize: '1rem', lineHeight: 1 }}>✕</button>
+          </div>
+          <form onSubmit={handleSuggest} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <input
+              className="input"
+              id="suggest_college_name"
+              placeholder="College full name *"
+              value={suggestForm.name}
+              onChange={e => setSuggestForm(f => ({ ...f, name: e.target.value }))}
+              style={{ fontSize: '0.85rem', padding: '0.4rem 0.75rem' }}
+            />
+            <input
+              className="input"
+              id="suggest_college_state"
+              placeholder="State (e.g. Maharashtra)"
+              value={suggestForm.state}
+              onChange={e => setSuggestForm(f => ({ ...f, state: e.target.value }))}
+              style={{ fontSize: '0.85rem', padding: '0.4rem 0.75rem' }}
+            />
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={submitting}
+              style={{ fontSize: '0.8rem', padding: '0.4rem 1rem', alignSelf: 'flex-start' }}
+            >
+              {submitting ? 'Submitting…' : 'Submit for review →'}
+            </button>
+          </form>
+        </>
+      )}
+    </div>
+  );
+}
+
 // Generate graduation years: current year through current+6, auto-advances each year
 function getGraduationYears() {
   const base = new Date().getFullYear();
@@ -19,6 +105,7 @@ export default function Register() {
   const [form, setForm] = useState({ username: '', email: '', password: '', college_id: '', graduation_year: '', leetcode_username: '' });
   const [collegeSearch, setCollegeSearch] = useState('');
   const [showCollegeDropdown, setShowCollegeDropdown] = useState(false);
+  const [showSuggestForm, setShowSuggestForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const graduationYears = getGraduationYears();
@@ -214,6 +301,26 @@ export default function Register() {
               </div>
             )}
           </div>
+          {/* Can't find your college? */}
+          <div style={{ marginTop: '0.4rem' }}>
+            <p style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', display: 'inline' }}>Can't find your college?{' '}</p>
+            <button
+              type="button"
+              id="add_college_btn"
+              onClick={() => setShowSuggestForm(v => !v)}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontSize: '0.78rem', color: 'var(--foreground)', fontWeight: 600,
+                textDecoration: 'underline', textUnderlineOffset: '2px',
+                padding: 0, fontFamily: 'var(--font-display)'
+              }}
+            >
+              Add college
+            </button>
+          </div>
+          {showSuggestForm && (
+            <SuggestCollegeForm onClose={() => setShowSuggestForm(false)} />
+          )}
           {errors.college_id && <p style={{ fontSize: '0.75rem', color: 'var(--hard)', marginTop: '0.25rem' }}>{errors.college_id}</p>}
         </div>
 
