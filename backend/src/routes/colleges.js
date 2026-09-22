@@ -60,31 +60,49 @@ router.get('/:slug', async (req, res) => {
 });
 
 
-// POST /api/colleges/suggest — Submit a missing college for admin review
+// POST /api/colleges/suggest — Add a missing college immediately to the live list
 router.post('/suggest', async (req, res) => {
   try {
     const { name, state } = req.body;
     if (!name || !name.trim()) return res.status(400).json({ error: 'College name is required' });
 
+    const trimmedName = name.trim();
+
+    // Auto-generate a URL-safe slug from the name
+    let slug = trimmedName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+
+    // Insert directly into colleges table — immediately live
     const { data, error } = await supabase
-      .from('college_suggestions')
+      .from('colleges')
       .insert({
-        name: name.trim(),
+        name: trimmedName,
+        slug,
         state: (state || '').trim() || null,
-        status: 'pending',
+        type: 'Engineering',
+        source: 'user',
       })
       .select()
       .single();
 
     if (error) {
-      // Handle duplicate suggestion gracefully
       if (error.code === '23505') {
-        return res.status(409).json({ error: 'This college has already been suggested and is pending review.' });
+        // Slug conflict — append a short random suffix and retry
+        slug = `${slug}-${Math.random().toString(36).slice(2, 6)}`;
+        const { data: data2, error: error2 } = await supabase
+          .from('colleges')
+          .insert({ name: trimmedName, slug, state: (state || '').trim() || null, type: 'Engineering', source: 'user' })
+          .select()
+          .single();
+        if (error2) return res.status(500).json({ error: error2.message });
+        return res.status(201).json({ college: data2 });
       }
       return res.status(500).json({ error: error.message });
     }
 
-    res.status(201).json({ suggestion: data });
+    res.status(201).json({ college: data });
   } catch (err) {
     console.error('College suggest error:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -92,3 +110,4 @@ router.post('/suggest', async (req, res) => {
 });
 
 export default router;
+

@@ -5,129 +5,15 @@ import toast from 'react-hot-toast';
 const BLANK = { name: '', slug: '', state: '', type: 'Engineering', logo_url: '' };
 const TYPE_OPTIONS = ['Engineering', 'IIT', 'NIT', 'BITS', 'IIIT', 'Deemed', 'State', 'Autonomous', 'Private', 'Medical', 'Arts'];
 
-// ─── Approve Modal ────────────────────────────────────────────────────────────
-function ApproveModal({ suggestion, onApprove, onClose }) {
-  const autoSlug = (str) =>
-    str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-
-  const [form, setForm] = useState({
-    name: suggestion.name,
-    slug: autoSlug(suggestion.name),
-    state: suggestion.state || '',
-    type: 'Engineering',
-    logo_url: '',
-  });
-  const [saving, setSaving] = useState(false);
-
-  const handleApprove = async (e) => {
-    e.preventDefault();
-    if (!form.name || !form.slug) return toast.error('Name and slug are required');
-    setSaving(true);
-    try {
-      await onApprove(suggestion.id, form);
-      onClose();
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 50,
-      background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '1rem',
-    }}>
-      <div style={{
-        background: 'var(--surface)',
-        border: '1px solid var(--border)',
-        borderRadius: 'var(--radius)',
-        padding: '1.75rem',
-        width: '100%', maxWidth: '28rem',
-        animation: 'fadeInUp 0.2s ease both',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>Approve College Suggestion</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)', fontSize: '1.1rem' }}>✕</button>
-        </div>
-
-        <p style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
-          Review and correct the information before adding it to the live college list.
-        </p>
-
-        <form onSubmit={handleApprove} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <div>
-            <label className="subheading" style={{ display: 'block', marginBottom: '0.3rem' }}>Name *</label>
-            <input
-              className="input"
-              value={form.name}
-              onChange={e => setForm(f => ({
-                ...f,
-                name: e.target.value,
-                slug: f.slug === autoSlug(f.name) ? autoSlug(e.target.value) : f.slug,
-              }))}
-              placeholder="Full college name"
-            />
-          </div>
-          <div>
-            <label className="subheading" style={{ display: 'block', marginBottom: '0.3rem' }}>Slug * (URL-safe)</label>
-            <input
-              className="input"
-              value={form.slug}
-              onChange={e => setForm(f => ({ ...f, slug: e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') }))}
-              placeholder="e.g. mait-delhi"
-            />
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-            <div>
-              <label className="subheading" style={{ display: 'block', marginBottom: '0.3rem' }}>State</label>
-              <input
-                className="input"
-                value={form.state}
-                onChange={e => setForm(f => ({ ...f, state: e.target.value }))}
-                placeholder="e.g. Maharashtra"
-              />
-            </div>
-            <div>
-              <label className="subheading" style={{ display: 'block', marginBottom: '0.3rem' }}>Type</label>
-              <select className="input" value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}>
-                {TYPE_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
-          </div>
-          <div>
-            <label className="subheading" style={{ display: 'block', marginBottom: '0.3rem' }}>Logo URL</label>
-            <input
-              className="input"
-              value={form.logo_url}
-              onChange={e => setForm(f => ({ ...f, logo_url: e.target.value }))}
-              placeholder="https://..."
-            />
-          </div>
-
-          <div style={{ display: 'flex', gap: '0.6rem', paddingTop: '0.25rem' }}>
-            <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? 'Approving…' : '✓ Approve & Add'}
-            </button>
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-// ─── Main Colleges Page ───────────────────────────────────────────────────────
 export default function Colleges() {
-  const [tab, setTab] = useState('colleges'); // 'colleges' | 'suggestions'
+  const [tab, setTab] = useState('colleges'); // 'colleges' | 'new-additions'
   const [colleges, setColleges] = useState([]);
-  const [suggestions, setSuggestions] = useState([]);
+  const [newAdditions, setNewAdditions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sugLoading, setSugLoading] = useState(true);
+  const [naLoading, setNaLoading] = useState(true);
   const [editing, setEditing] = useState(null); // null = list, 'new' = create, id = edit
   const [form, setForm] = useState(BLANK);
   const [saving, setSaving] = useState(false);
-  const [approveTarget, setApproveTarget] = useState(null); // suggestion to approve
 
   const fetchColleges = () => {
     setLoading(true);
@@ -137,22 +23,28 @@ export default function Colleges() {
       .finally(() => setLoading(false));
   };
 
-  const fetchSuggestions = () => {
-    setSugLoading(true);
-    api.get('/admin/suggestions?status=pending')
-      .then(res => setSuggestions(res.data.suggestions || []))
+  const fetchNewAdditions = () => {
+    setNaLoading(true);
+    api.get('/admin/new-additions')
+      .then(res => setNewAdditions(res.data.colleges || []))
       .catch(() => {})
-      .finally(() => setSugLoading(false));
+      .finally(() => setNaLoading(false));
   };
 
   useEffect(() => {
     fetchColleges();
-    fetchSuggestions();
+    fetchNewAdditions();
   }, []);
 
   const startEdit = (college) => {
     setEditing(college.id);
-    setForm({ name: college.name, slug: college.slug, state: college.state || '', type: college.type || 'Engineering', logo_url: college.logo_url || '' });
+    setForm({
+      name: college.name,
+      slug: college.slug,
+      state: college.state || '',
+      type: college.type || 'Engineering',
+      logo_url: college.logo_url || '',
+    });
   };
 
   const startNew = () => {
@@ -174,6 +66,7 @@ export default function Colleges() {
       }
       setEditing(null);
       fetchColleges();
+      fetchNewAdditions();
     } catch (err) {
       toast.error(err.response?.data?.error || 'Save failed');
     } finally {
@@ -187,31 +80,9 @@ export default function Colleges() {
       await api.delete(`/admin/colleges/${id}`);
       toast.success(`"${name}" deleted`);
       fetchColleges();
+      fetchNewAdditions();
     } catch {
       toast.error('Delete failed');
-    }
-  };
-
-  const handleApproveSuggestion = async (id, formData) => {
-    try {
-      await api.post(`/admin/suggestions/${id}/approve`, formData);
-      toast.success('College approved and added!');
-      fetchSuggestions();
-      fetchColleges();
-    } catch (err) {
-      toast.error(err.response?.data?.error || 'Approval failed');
-      throw err;
-    }
-  };
-
-  const handleRejectSuggestion = async (id, name) => {
-    if (!confirm(`Reject suggestion "${name}"?`)) return;
-    try {
-      await api.delete(`/admin/suggestions/${id}`);
-      toast.success('Suggestion rejected');
-      fetchSuggestions();
-    } catch {
-      toast.error('Reject failed');
     }
   };
 
@@ -264,21 +135,12 @@ export default function Colleges() {
   return (
     <div className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
 
-      {/* Approve modal */}
-      {approveTarget && (
-        <ApproveModal
-          suggestion={approveTarget}
-          onApprove={handleApproveSuggestion}
-          onClose={() => setApproveTarget(null)}
-        />
-      )}
-
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
         <div>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 600 }}>Colleges</h2>
           <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-            {colleges.length} institutions · {suggestions.length} pending {suggestions.length === 1 ? 'suggestion' : 'suggestions'}
+            {colleges.length} institutions · {newAdditions.length} user-added
           </p>
         </div>
         {tab === 'colleges' && (
@@ -287,10 +149,10 @@ export default function Colleges() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '0' }}>
+      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1.25rem', borderBottom: '1px solid var(--border)' }}>
         {[
           { key: 'colleges', label: 'All Colleges' },
-          { key: 'suggestions', label: 'Pending Suggestions', badge: suggestions.length },
+          { key: 'new-additions', label: 'New Additions', badge: newAdditions.length },
         ].map(t => (
           <button
             key={t.key}
@@ -321,7 +183,7 @@ export default function Colleges() {
         ))}
       </div>
 
-      {/* ── Colleges Tab ── */}
+      {/* ── All Colleges Tab ── */}
       {tab === 'colleges' && (
         <div className="card" style={{ overflow: 'auto' }}>
           <table>
@@ -329,7 +191,7 @@ export default function Colleges() {
               <tr>
                 <th>Name</th>
                 <th>Slug</th>
-                <th>City</th>
+                <th>State</th>
                 <th>Users</th>
                 <th></th>
               </tr>
@@ -346,9 +208,20 @@ export default function Colleges() {
               ) : (
                 colleges.map((c, i) => (
                   <tr key={c.id} style={{ animation: `fadeInUp 0.2s ease ${i * 0.02}s both` }}>
-                    <td style={{ fontWeight: 500 }}>{c.name}</td>
+                    <td style={{ fontWeight: 500 }}>
+                      {c.name}
+                      {c.source === 'user' && (
+                        <span style={{
+                          marginLeft: '0.4rem', fontSize: '0.65rem', fontWeight: 700,
+                          background: 'rgba(255,161,22,0.15)', color: 'var(--medium)',
+                          borderRadius: '4px', padding: '0.1rem 0.35rem', verticalAlign: 'middle',
+                        }}>
+                          USER
+                        </span>
+                      )}
+                    </td>
                     <td><code style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>{c.slug}</code></td>
-                    <td style={{ color: 'var(--foreground-70)', fontSize: '0.85rem' }}>{c.city || c.state || '—'}</td>
+                    <td style={{ color: 'var(--foreground-70)', fontSize: '0.85rem' }}>{c.state || '—'}</td>
                     <td style={{ fontSize: '0.85rem' }}>{c.users?.[0]?.count ?? 0}</td>
                     <td>
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -364,55 +237,53 @@ export default function Colleges() {
         </div>
       )}
 
-      {/* ── Suggestions Tab ── */}
-      {tab === 'suggestions' && (
+      {/* ── New Additions Tab ── */}
+      {tab === 'new-additions' && (
         <div>
-          {sugLoading ? (
+          <p style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
+            These colleges were added by users and are already live in the college list. Review and edit or remove them as needed.
+          </p>
+
+          {naLoading ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
               {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 64, borderRadius: 'var(--radius)' }} />)}
             </div>
-          ) : suggestions.length === 0 ? (
+          ) : newAdditions.length === 0 ? (
             <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
               <p style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>✅</p>
-              <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>No pending suggestions. All caught up!</p>
+              <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>No user-added colleges yet.</p>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              {suggestions.map((s, i) => (
-                <div
-                  key={s.id}
-                  className="card"
-                  style={{
-                    padding: '1rem 1.25rem',
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem',
-                    animation: `fadeInUp 0.2s ease ${i * 0.04}s both`,
-                  }}
-                >
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.15rem' }}>{s.name}</p>
-                    <p style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>
-                      {s.state ? `📍 ${s.state}` : 'No state provided'}
-                      {' · '}
-                      {new Date(s.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
-                    </p>
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
-                    <button
-                      className="btn btn-primary btn-sm"
-                      onClick={() => setApproveTarget(s)}
-                    >
-                      ✓ Approve
-                    </button>
-                    <button
-                      className="btn btn-secondary btn-sm"
-                      style={{ color: 'var(--hard)', borderColor: 'var(--hard)' }}
-                      onClick={() => handleRejectSuggestion(s.id, s.name)}
-                    >
-                      ✕ Reject
-                    </button>
-                  </div>
-                </div>
-              ))}
+            <div className="card" style={{ overflow: 'auto' }}>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Slug</th>
+                    <th>State</th>
+                    <th>Added</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {newAdditions.map((c, i) => (
+                    <tr key={c.id} style={{ animation: `fadeInUp 0.2s ease ${i * 0.04}s both` }}>
+                      <td style={{ fontWeight: 500 }}>{c.name}</td>
+                      <td><code style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>{c.slug}</code></td>
+                      <td style={{ color: 'var(--foreground-70)', fontSize: '0.85rem' }}>{c.state || '—'}</td>
+                      <td style={{ color: 'var(--muted-foreground)', fontSize: '0.78rem' }}>
+                        {new Date(c.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button className="btn btn-secondary btn-sm" onClick={() => startEdit(c)}>Edit</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => handleDelete(c.id, c.name)}>Remove</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

@@ -244,99 +244,18 @@ router.get('/stats', async (req, res) => {
   }
 });
 
-// ─── COLLEGE SUGGESTIONS ─────────────────────────────────
+// ─── NEW ADDITIONS (user-submitted colleges) ─────────────
 
-// GET /api/admin/suggestions — list all pending suggestions
-router.get('/suggestions', async (req, res) => {
+// GET /api/admin/new-additions — list colleges added by users (source='user')
+router.get('/new-additions', async (req, res) => {
   try {
-    const { status = 'pending' } = req.query;
     const { data, error } = await supabase
-      .from('college_suggestions')
-      .select('*')
-      .eq('status', status)
+      .from('colleges')
+      .select('*, users(count)')
+      .eq('source', 'user')
       .order('created_at', { ascending: false });
     if (error) return res.status(500).json({ error: error.message });
-    res.json({ suggestions: data });
-  } catch (err) {
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// POST /api/admin/suggestions/:id/approve — approve a suggestion (creates real college)
-router.post('/suggestions/:id/approve', async (req, res) => {
-  try {
-    // Admin may override name, state, type, and provide a final slug
-    const { name, state, type, logo_url, slug: providedSlug } = req.body;
-
-    // Fetch the suggestion
-    const { data: suggestion, error: fetchErr } = await supabase
-      .from('college_suggestions')
-      .select('*')
-      .eq('id', req.params.id)
-      .single();
-    if (fetchErr || !suggestion) return res.status(404).json({ error: 'Suggestion not found' });
-
-    const finalName = (name || suggestion.name).trim();
-    const finalState = (state || suggestion.state || '').trim() || null;
-    const finalType = type || 'Engineering';
-    const finalLogoUrl = logo_url || null;
-    // Auto-generate slug if not provided
-    const finalSlug = (providedSlug || finalName)
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
-
-    // Insert into colleges table
-    const { data: college, error: insertErr } = await supabase
-      .from('colleges')
-      .insert({ name: finalName, slug: finalSlug, state: finalState, type: finalType, logo_url: finalLogoUrl })
-      .select()
-      .single();
-
-    if (insertErr) return res.status(500).json({ error: insertErr.message });
-
-    // Mark suggestion as approved
-    await supabase
-      .from('college_suggestions')
-      .update({ status: 'approved', resolved_college_id: college.id })
-      .eq('id', req.params.id);
-
-    res.json({ college });
-  } catch (err) {
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// PATCH /api/admin/suggestions/:id — update a suggestion (rename before approving)
-router.patch('/suggestions/:id', async (req, res) => {
-  try {
-    const allowed = ['name', 'state', 'status'];
-    const updates = {};
-    for (const key of allowed) {
-      if (req.body[key] !== undefined) updates[key] = req.body[key];
-    }
-    const { data, error } = await supabase
-      .from('college_suggestions')
-      .update(updates)
-      .eq('id', req.params.id)
-      .select()
-      .single();
-    if (error) return res.status(500).json({ error: error.message });
-    res.json({ suggestion: data });
-  } catch (err) {
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// DELETE /api/admin/suggestions/:id — reject/delete a suggestion
-router.delete('/suggestions/:id', async (req, res) => {
-  try {
-    const { error } = await supabase
-      .from('college_suggestions')
-      .update({ status: 'rejected' })
-      .eq('id', req.params.id);
-    if (error) return res.status(500).json({ error: error.message });
-    res.json({ message: 'Suggestion rejected' });
+    res.json({ colleges: data });
   } catch (err) {
     res.status(500).json({ error: 'Internal server error' });
   }

@@ -6,24 +6,26 @@ import { DottedSeparator } from '../components/DottedUnderline';
 import toast from 'react-hot-toast';
 import STATIC_COLLEGES from '../data/colleges';
 
-// Inline form for suggesting a missing college
-function SuggestCollegeForm({ onClose }) {
+// Inline form for adding a missing college (immediately live)
+function SuggestCollegeForm({ onClose, onAdded }) {
   const [suggestForm, setSuggestForm] = useState({ name: '', state: '' });
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [addedCollege, setAddedCollege] = useState(null);
 
   const handleSuggest = async (e) => {
     e.preventDefault();
     if (!suggestForm.name.trim()) return toast.error('College name is required');
     setSubmitting(true);
     try {
-      await api.post('/colleges/suggest', {
+      const res = await api.post('/colleges/suggest', {
         name: suggestForm.name.trim(),
         state: suggestForm.state.trim(),
       });
-      setSubmitted(true);
+      const college = res.data.college;
+      setAddedCollege(college);
+      if (onAdded) onAdded(college);
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Could not submit suggestion');
+      toast.error(err.response?.data?.error || 'Could not add college');
     } finally {
       setSubmitting(false);
     }
@@ -38,12 +40,12 @@ function SuggestCollegeForm({ onClose }) {
       borderRadius: 'var(--radius)',
       animation: 'fadeInUp 0.2s ease both',
     }}>
-      {submitted ? (
+      {addedCollege ? (
         <div style={{ textAlign: 'center', padding: '0.5rem 0' }}>
-          <p style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>🎉</p>
-          <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--foreground)' }}>Thanks! College submitted.</p>
+          <p style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>✅</p>
+          <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--foreground)' }}>{addedCollege.name} is now live!</p>
           <p style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', marginTop: '0.2rem' }}>
-            Our team will review and add it shortly.
+            It's been selected above — continue with your registration.
           </p>
           <button
             type="button"
@@ -319,7 +321,17 @@ export default function Register() {
             </button>
           </div>
           {showSuggestForm && (
-            <SuggestCollegeForm onClose={() => setShowSuggestForm(false)} />
+            <SuggestCollegeForm
+              onClose={() => setShowSuggestForm(false)}
+              onAdded={(college) => {
+                // Add to dropdown list and auto-select it
+                setColleges(prev => [college, ...prev.filter(c => c.id !== college.id)]);
+                setForm(f => ({ ...f, college_id: college.id }));
+                setCollegeSearch(college.name);
+                // Close the form after a brief moment so user sees the success state
+                setTimeout(() => setShowSuggestForm(false), 1800);
+              }}
+            />
           )}
           {errors.college_id && <p style={{ fontSize: '0.75rem', color: 'var(--hard)', marginTop: '0.25rem' }}>{errors.college_id}</p>}
         </div>
